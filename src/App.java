@@ -1,5 +1,6 @@
 
 import javax.swing.*;
+import java.awt.*;
 
 public class App {
     public static void main(String[] Args) throws Exception{
@@ -10,6 +11,6 @@ public class App {
             protected void paintComponent(Graphics g){
                 g.fillRect(50,50,100,100);
             }
-        }
+        };
     }
 }
