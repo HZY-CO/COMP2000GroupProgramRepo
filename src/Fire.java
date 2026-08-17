@@ -3,13 +3,11 @@ public class Fire{
     int y;
     int duration;
 
-    
-
     void spread(){
 
     }
 
     int fireIntensity(){
-
+        return duration;
     }
 }

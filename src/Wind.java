@@ -1,11 +1,8 @@
-public class Wind{
-    int x;
-    int y;
+public class Wind extends Entity {
     int windPower;
 
     public Wind(int x, int y, int windPower){
-        this.x = x;
-        this.y = y;
+        super(x, y);
         this.windPower = windPower;
     }
 
@@ -32,6 +29,4 @@ public class Wind{
         }
         return value;
     }
-
-    
 }
