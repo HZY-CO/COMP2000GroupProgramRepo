@@ -1,7 +1,10 @@
-public class Fire{
-    int x;
-    int y;
+public class Fire extends Entity {
     int duration;
+
+    public Fire(int x, int y, int duration) {
+        super(x, y);
+        this.duration = duration;
+    }
 
     void spread(){
 

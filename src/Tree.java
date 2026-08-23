@@ -1,16 +1,13 @@
-public class Tree{
-    int x;
-    int y;
+public class Tree extends Entity{
     int maxAge;
     int age;
     boolean isBurning;
 
-    public Tree(int x, int y, int maxAge) {
-        this.x = x;
-        this.y = y;
+    public Tree(int x, int y, int maxAge, int age, boolean isBurning) {
+        super(x, y);
         this.maxAge = maxAge;
-        this.age = 0;
-        this.isBurning = false;
+        this.age = age;
+        this.isBurning = isBurning;
     }
 
     void growing() {
