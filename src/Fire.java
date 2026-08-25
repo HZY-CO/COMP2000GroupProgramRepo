@@ -2,7 +2,6 @@ public class Fire extends Entity {
     int duration;
     int intensity;
     boolean burning;
-    static final int SPREAD_RADIUS = 1;
 
     public Fire(int x, int y, int duration, int intensity) {
         super(x, y);
