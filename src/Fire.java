@@ -10,7 +10,7 @@ public class Fire extends Entity {
         this.burning = true;
     }
 
-    void spread(){
+    public void update(){
 
     }
 

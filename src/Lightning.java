@@ -6,8 +6,7 @@ public class Lightning extends Entity{
         this.duration = duration;
     }
 
-    void strike(){
-
+    public void update(){
     }
 
     int lightningIntensity(){

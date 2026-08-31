@@ -29,4 +29,8 @@ public class Wind extends Entity {
         }
         return value;
     }
+
+    public void update() {
+        
+    }
 }
