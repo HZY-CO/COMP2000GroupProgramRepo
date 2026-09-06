@@ -3,6 +3,10 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class App {
+    private static int gridWidth = 500;
+    private static int gridHeight = 500;
+    private static double treeGenerateProbablity = 0.7;
+
     public static void main(String[] Args) throws Exception {
         final int setupFrameWidth = 500;
         final int setupFrameHeight = 700;
@@ -30,7 +34,6 @@ public class App {
 
         //Panel //create function for attributes
 
-
         setupFrame.add(title);
         setupFrame.setVisible(true);
 
@@ -41,4 +44,22 @@ public class App {
         });
 
     };
+
+    private static void generateForestSimulation() {
+        EntityManager<Tree> treeEntityManager = new EntityManager<>();
+        
+        for (int x = 0; x < gridWidth; x++) {
+            for (int y = 0; y < gridHeight; y++) {
+                if (Math.random() < treeGenerateProbablity) {
+                    int maxAge = 50 + (int)(Math.random() * 50);
+                    int startAge = 1 + (int)(Math.random() * maxAge);
+                    
+                    // Spawn tree (1% chance to start already burning)
+                    boolean startsOnFire = Math.random() < 0.01; 
+
+                    treeEntityManager.add(new Tree(x, y, maxAge, startAge, startsOnFire));
+                }
+            }
+        }
+    }
 }
