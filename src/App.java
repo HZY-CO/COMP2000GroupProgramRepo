@@ -26,11 +26,6 @@ public class App {
         final int setupFrameWidth = 500;
         final int setupFrameHeight = 700;
         simSetup(setupFrameWidth, setupFrameHeight);
-
-        Frame mainFrame = new Frame("Forest Fire Simulation");
-
-        // mainFrame
-
     };
 
 
@@ -169,7 +164,7 @@ public class App {
         cellSizeAttributeText.setFont(new Font("SansSerif", Font.BOLD, 24));
         cellSizeAttributeText.setForeground(new Color(255, 255, 255));
 
-        Label cellSizeAttributeValue = new Label(Integer.toString(gridHeight), Label.CENTER);
+        Label cellSizeAttributeValue = new Label(Integer.toString(cellSize), Label.CENTER);
         cellSizeAttributeValue.setBounds(setupFrameWidth-180, 30, 80, 40);
         cellSizeAttributeValue.setFont(new Font("SansSerif", Font.BOLD, 32));
         cellSizeAttributeValue.setForeground(new Color(255, 255, 255));
@@ -186,7 +181,7 @@ public class App {
                 {
                     cellSize = 1;
                 }
-                heightAttributeValue.setText(Integer.toString(cellSize));
+                cellSizeAttributeValue.setText(Integer.toString(cellSize));
             }
         });
 
@@ -220,7 +215,7 @@ public class App {
         createSimulationBtn.setBackground(new Color(40, 40, 40));
         createSimulationBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                generateForestSimulation();
+                generateTrees();
                 setupFrame.dispose();
             }
         });
@@ -243,10 +238,20 @@ public class App {
 
     };
 
-    //Method by Aaron,
+    //Method by Aaron, modified by Ed.
     private static EntityManager<Tree> generateTrees() {
         EntityManager<Tree> treeEntityManager = new EntityManager<>();
+
+        int buffer = 120;
+        int mainFrameSizeX = gridWidth * cellSize + buffer;
+        int mainFrameSizeY = gridHeight * cellSize + buffer;
         
+        Frame mainFrame = new Frame("Forest Fire Simulation");
+        mainFrame.setSize(mainFrameSizeX, mainFrameSizeY);
+        mainFrame.setLayout(null);
+        mainFrame.setBackground(new Color(40, 40, 40));
+        mainFrame.setResizable(false);
+
         // Iterate over the 2d grid and fill out the space with
         // Trees in different states
         for (int x = 0; x < gridWidth; x++) {
@@ -268,9 +273,28 @@ public class App {
 
                     Tree tree = new Tree(x, y, maxAge, startAge, initialState);
                     treeEntityManager.add(tree);
+
+                    Panel treePanel = new Panel();
+                    treePanel.setSize(cellSize, cellSize);
+                    treePanel.setBackground(new Color(0, 255, 0));
+
+                    int treePanelX = buffer/2 + (x*cellSize);
+                    int treePanelY = buffer/2 + (y*cellSize);
+                    treePanel.setLocation(treePanelX, treePanelY);
+
+                    mainFrame.add(treePanel);
+
                 }
             }
         }
+
+        mainFrame.setVisible(true);
+
+        mainFrame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent windowEvent) {
+                System.exit(0);
+            }
+        });
 
         return treeEntityManager;
     }
