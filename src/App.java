@@ -1,10 +1,22 @@
+/*
+Resources
+https://docs.oracle.com/en/java/javase/26/docs/api/java.desktop/java/awt/Component.html
+https://docs.oracle.com/en/java/javase/26/docs/api/java.desktop/java/awt/package-summary.html
+*/
+
+
 //import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
 public class App {
-    private static int gridWidth = 500;
-    private static int gridHeight = 500;
+    private static int gridWidth = 16;      // The Width of the simulation by number of cells.
+    private static int gridHeight = 16;     // The Height of the simulation by number of cells.
+    private static int maxGridWidth = 512;      // The Width of the simulation by number of cells.
+    private static int maxGridHeight = 512;     // The Height of the simulation by number of cells.
+
+    private static int cellSize = 32;       // The size of each cell in pixels. Cells will be square.
+
     private static double treeGenerateProbablity = 0.7;
 
     public static void main(String[] Args) throws Exception {
@@ -18,9 +30,11 @@ public class App {
 
     };
 
+
+
+    // Method by Ed, Creates a simple frame to take inputs from the user about how the simulation will appear.
     private static void simSetup(int setupFrameWidth, int setupFrameHeight) {
         Frame setupFrame = new Frame("Simulation Setup");
-
         setupFrame.setSize(setupFrameWidth, setupFrameHeight);
         setupFrame.setLayout(null);
         setupFrame.setBackground(new Color(40, 40, 40));
@@ -32,9 +46,123 @@ public class App {
         title.setFont(new Font("SansSerif", Font.BOLD, 32));
         title.setForeground(new Color(255, 255, 255));
 
-        //Panel //create function for attributes
+        // Adjustable Width Attribute
+        Panel widthAttribute = new Panel();
+        widthAttribute.setLayout(null);
+        widthAttribute.setSize(setupFrameWidth, 100);
+        widthAttribute.setBackground(new Color(60, 60, 60));
+        widthAttribute.setLocation(0, 180);
 
+        Label widthAttributeText = new Label("Simulation Width", Label.LEFT);
+        widthAttributeText.setBounds(20, 0, setupFrameWidth, 100);
+        widthAttributeText.setFont(new Font("SansSerif", Font.BOLD, 24));
+        widthAttributeText.setForeground(new Color(255, 255, 255));
+
+        Label widthAttributeValue = new Label(Integer.toString(gridWidth), Label.CENTER);
+        widthAttributeValue.setBounds(setupFrameWidth-180, 30, 80, 40);
+        widthAttributeValue.setFont(new Font("SansSerif", Font.BOLD, 32));
+        widthAttributeValue.setForeground(new Color(255, 255, 255));
+
+        Button widthDecreaseBtn = new Button("<");
+        widthDecreaseBtn.setBounds(setupFrameWidth-220, 30, 40, 40);
+        widthDecreaseBtn.setFont(new Font("SansSerif", Font.BOLD, 24));
+        widthDecreaseBtn.setForeground(new Color(255, 255, 255));
+        widthDecreaseBtn.setBackground(new Color(40, 40, 40));
+        widthDecreaseBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                gridWidth -= 1;
+                if(gridWidth <= 0)
+                {
+                    gridWidth = 1;
+                }
+                widthAttributeValue.setText(Integer.toString(gridWidth));
+            }
+        });
+
+        Button widthIncreaseBtn = new Button(">");
+        widthIncreaseBtn.setBounds(setupFrameWidth-100, 30, 40, 40);
+        widthIncreaseBtn.setFont(new Font("SansSerif", Font.BOLD, 24));
+        widthIncreaseBtn.setForeground(new Color(255, 255, 255));
+        widthIncreaseBtn.setBackground(new Color(40, 40, 40));
+        widthIncreaseBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                gridWidth += 1;
+                if(gridWidth > maxGridWidth)
+                {
+                    gridWidth = maxGridWidth;
+                }
+                widthAttributeValue.setText(Integer.toString(gridWidth));
+            }
+        });
+
+
+        widthAttribute.add(widthDecreaseBtn);
+        widthAttribute.add(widthIncreaseBtn);
+        widthAttribute.add(widthAttributeValue);
+        widthAttribute.add(widthAttributeText);
+
+        
+        // Adjustable Width Attribute
+        Panel heightAttribute = new Panel();
+        heightAttribute.setLayout(null);
+        heightAttribute.setSize(setupFrameWidth, 100);
+        heightAttribute.setBackground(new Color(60, 60, 60));
+        heightAttribute.setLocation(0, 300);
+
+        Label heightAttributeText = new Label("Simulation Height", Label.LEFT);
+        heightAttributeText.setBounds(20, 0, setupFrameWidth, 100);
+        heightAttributeText.setFont(new Font("SansSerif", Font.BOLD, 24));
+        heightAttributeText.setForeground(new Color(255, 255, 255));
+
+        Label heightAttributeValue = new Label(Integer.toString(gridHeight), Label.CENTER);
+        heightAttributeValue.setBounds(setupFrameWidth-180, 30, 80, 40);
+        heightAttributeValue.setFont(new Font("SansSerif", Font.BOLD, 32));
+        heightAttributeValue.setForeground(new Color(255, 255, 255));
+
+        Button heightDecreaseBtn = new Button("<");
+        heightDecreaseBtn.setBounds(setupFrameWidth-220, 30, 40, 40);
+        heightDecreaseBtn.setFont(new Font("SansSerif", Font.BOLD, 24));
+        heightDecreaseBtn.setForeground(new Color(255, 255, 255));
+        heightDecreaseBtn.setBackground(new Color(40, 40, 40));
+        heightDecreaseBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                gridHeight -= 1;
+                if(gridHeight <= 0)
+                {
+                    gridHeight = 1;
+                }
+                heightAttributeValue.setText(Integer.toString(gridHeight));
+            }
+        });
+
+        Button heightIncreaseBtn = new Button(">");
+        heightIncreaseBtn.setBounds(setupFrameWidth-100, 30, 40, 40);
+        heightIncreaseBtn.setFont(new Font("SansSerif", Font.BOLD, 24));
+        heightIncreaseBtn.setForeground(new Color(255, 255, 255));
+        heightIncreaseBtn.setBackground(new Color(40, 40, 40));
+        heightIncreaseBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                gridHeight += 1;
+                if(gridHeight > maxGridHeight)
+                {
+                    gridHeight = maxGridHeight;
+                }
+                heightAttributeValue.setText(Integer.toString(gridHeight));
+            }
+        });
+
+
+        heightAttribute.add(heightDecreaseBtn);
+        heightAttribute.add(heightIncreaseBtn);
+        heightAttribute.add(heightAttributeValue);
+        heightAttribute.add(heightAttributeText);
+
+
+        //Compile frame content
         setupFrame.add(title);
+        setupFrame.add(widthAttribute);
+        setupFrame.add(heightAttribute);
+
         setupFrame.setVisible(true);
 
         setupFrame.addWindowListener(new WindowAdapter() {
@@ -45,6 +173,9 @@ public class App {
 
     };
 
+
+
+    //Method by Aaron,
     private static void generateForestSimulation() {
         EntityManager<Tree> treeEntityManager = new EntityManager<>();
         
