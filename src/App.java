@@ -12,10 +12,11 @@ import java.awt.event.*;
 public class App {
     private static int gridWidth = 16;      // The Width of the simulation by number of cells.
     private static int gridHeight = 16;     // The Height of the simulation by number of cells.
-    private static int maxGridWidth = 512;      // The Width of the simulation by number of cells.
-    private static int maxGridHeight = 512;     // The Height of the simulation by number of cells.
+    private static int maxGridWidth = 512;      
+    private static int maxGridHeight = 512;  
 
     private static int cellSize = 32;       // The size of each cell in pixels. Cells will be square.
+    private static int maxCellSize = 512;
 
     private static double treeGenerateProbablity = 0.7;
 
@@ -95,13 +96,11 @@ public class App {
             }
         });
 
-
         widthAttribute.add(widthDecreaseBtn);
         widthAttribute.add(widthIncreaseBtn);
         widthAttribute.add(widthAttributeValue);
         widthAttribute.add(widthAttributeText);
 
-        
         // Adjustable Width Attribute
         Panel heightAttribute = new Panel();
         heightAttribute.setLayout(null);
@@ -151,17 +150,71 @@ public class App {
             }
         });
 
-
         heightAttribute.add(heightDecreaseBtn);
         heightAttribute.add(heightIncreaseBtn);
         heightAttribute.add(heightAttributeValue);
         heightAttribute.add(heightAttributeText);
 
+        // Adjustable Cell Size Attribute
+        Panel cellSizeAttribute = new Panel();
+        cellSizeAttribute.setLayout(null);
+        cellSizeAttribute.setSize(setupFrameWidth, 100);
+        cellSizeAttribute.setBackground(new Color(60, 60, 60));
+        cellSizeAttribute.setLocation(0, 420);
+
+        Label cellSizeAttributeText = new Label("Cell Size", Label.LEFT);
+        cellSizeAttributeText.setBounds(20, 0, setupFrameWidth, 100);
+        cellSizeAttributeText.setFont(new Font("SansSerif", Font.BOLD, 24));
+        cellSizeAttributeText.setForeground(new Color(255, 255, 255));
+
+        Label cellSizeAttributeValue = new Label(Integer.toString(gridHeight), Label.CENTER);
+        cellSizeAttributeValue.setBounds(setupFrameWidth-180, 30, 80, 40);
+        cellSizeAttributeValue.setFont(new Font("SansSerif", Font.BOLD, 32));
+        cellSizeAttributeValue.setForeground(new Color(255, 255, 255));
+
+        Button cellSizeDecreaseBtn = new Button("<");
+        cellSizeDecreaseBtn.setBounds(setupFrameWidth-220, 30, 40, 40);
+        cellSizeDecreaseBtn.setFont(new Font("SansSerif", Font.BOLD, 24));
+        cellSizeDecreaseBtn.setForeground(new Color(255, 255, 255));
+        cellSizeDecreaseBtn.setBackground(new Color(40, 40, 40));
+        cellSizeDecreaseBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                cellSize -= 1;
+                if(cellSize <= 0)
+                {
+                    cellSize = 1;
+                }
+                heightAttributeValue.setText(Integer.toString(cellSize));
+            }
+        });
+
+        Button cellSizeIncreaseBtn = new Button(">");
+        cellSizeIncreaseBtn.setBounds(setupFrameWidth-100, 30, 40, 40);
+        cellSizeIncreaseBtn.setFont(new Font("SansSerif", Font.BOLD, 24));
+        cellSizeIncreaseBtn.setForeground(new Color(255, 255, 255));
+        cellSizeIncreaseBtn.setBackground(new Color(40, 40, 40));
+        cellSizeIncreaseBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                cellSize += 1;
+                if(cellSize > maxCellSize)
+                {
+                    cellSize = maxCellSize;
+                }
+                cellSizeAttributeValue.setText(Integer.toString(cellSize));
+            }
+        });
+
+
+        cellSizeAttribute.add(cellSizeDecreaseBtn);
+        cellSizeAttribute.add(cellSizeIncreaseBtn);
+        cellSizeAttribute.add(cellSizeAttributeValue);
+        cellSizeAttribute.add(cellSizeAttributeText);
 
         //Compile frame content
         setupFrame.add(title);
         setupFrame.add(widthAttribute);
         setupFrame.add(heightAttribute);
+        setupFrame.add(cellSizeAttribute);
 
         setupFrame.setVisible(true);
 
