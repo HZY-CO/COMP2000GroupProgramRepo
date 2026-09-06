@@ -18,7 +18,9 @@ public class App {
     private static int cellSize = 32;       // The size of each cell in pixels. Cells will be square.
     private static int maxCellSize = 512;
 
-    private static double treeGenerateProbablity = 0.7;
+    // Tree Generation Constants
+    private static double treeGenerateProbability = 0.7;
+    private static int treeMaxAge = 50;
 
     public static void main(String[] Args) throws Exception {
         final int setupFrameWidth = 500;
@@ -241,26 +243,35 @@ public class App {
 
     };
 
-
-
     //Method by Aaron,
-    private static void generateForestSimulation() {
+    private static EntityManager<Tree> generateTrees() {
         EntityManager<Tree> treeEntityManager = new EntityManager<>();
         
+        // Iterate over the 2d grid and fill out the space with
+        // Trees in different states
         for (int x = 0; x < gridWidth; x++) {
             for (int y = 0; y < gridHeight; y++) {
-
-                
-                if (Math.random() < treeGenerateProbablity) {
-                    int maxAge = 50 + (int)(Math.random() * 50);
-                    int startAge = 1 + (int)(Math.random() * maxAge);
-                    
-                    // Spawn tree (1% chance to start already burning)
+                if (Math.random() < treeGenerateProbability) {
+                    int maxAge = treeMaxAge;
+                    int startAge = 1 + (int)(Math.random() * treeMaxAge);
+                    // In case Lightning is not complete, randomised burning Tree spawn
                     boolean startsOnFire = Math.random() < 0.01; 
 
-                    treeEntityManager.add(new Tree(x, y, maxAge, startAge, startsOnFire));
+                    Tree.TreeState initialState;
+                    if (startsOnFire) {
+                        initialState = Tree.TreeState.BURNING;
+                    } else if (startAge == maxAge) {
+                        initialState = Tree.TreeState.FULLY_GROWN;
+                    } else {
+                        initialState = Tree.TreeState.GROWING;
+                    }
+
+                    Tree tree = new Tree(x, y, maxAge, startAge, initialState);
+                    treeEntityManager.add(tree);
                 }
             }
         }
+
+        return treeEntityManager;
     }
 }
