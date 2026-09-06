@@ -10,8 +10,8 @@ public class Tree extends Entity {
     }
 
     private TreeState state;
-    int maxAge;
-    int age;
+    private int maxAge;
+    private int age;
 
     public Tree(int x, int y, int maxAge, int age, TreeState state) {
         super(x, y);
@@ -25,20 +25,21 @@ public class Tree extends Entity {
         switch (state) {
             case GROWING:
                 age++;
-                if (age >= maxAge) {
+                // Tree has fully grown and will not age further
+                if (age == maxAge) {
                     state = TreeState.FULLY_GROWN;
                 }
                 break;
 
             case FULLY_GROWN:
-                // Remains healthy and stationary until ignited
+                // Age remains constant until tree is ignited
                 break;
 
             case BURNING:
                 age--;
                 if (age <= 0) {
                     state = TreeState.BURNT;
-                    setActive(false); // Can be purged or drawn as dead ground
+                    setActive(false);
                 }
                 break;
 

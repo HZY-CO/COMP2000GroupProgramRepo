@@ -4,13 +4,15 @@ import java.util.Iterator;
 
 public class EntityManager<T extends Entity> {
     private List<T> entities = new ArrayList<>();
+    private List<T> pendingAdds = new ArrayList<>();
+    private List<T> pendingRemoves = new ArrayList<>();
 
     public void add(T entity) {
-        entities.add(entity);
+        pendingAdds.add(entity);
     }
 
     public void remove(T entity) {
-        entities.remove(entity);
+        pendingRemoves.add(entity);
     }
 
     public List<T> getAll() {
@@ -29,11 +31,16 @@ public class EntityManager<T extends Entity> {
     }
 
     public void update() {
-        for(T entity: entities) {
-            if(entity.isActive()) {
+        for (T entity : entities) {
+            if (entity.isActive()) {
                 entity.update();
             }
         }
+        
+        entities.addAll(pendingAdds);
+        entities.removeAll(pendingRemoves);
+        pendingAdds.clear();
+        pendingRemoves.clear();
     }
 
     public void cleanup() {
