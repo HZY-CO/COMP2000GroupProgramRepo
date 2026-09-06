@@ -162,7 +162,7 @@ public class App {
         cellSizeAttribute.setBackground(new Color(60, 60, 60));
         cellSizeAttribute.setLocation(0, 420);
 
-        Label cellSizeAttributeText = new Label("Cell Size", Label.LEFT);
+        Label cellSizeAttributeText = new Label("Cell Size (in pixels)", Label.LEFT);
         cellSizeAttributeText.setBounds(20, 0, setupFrameWidth, 100);
         cellSizeAttributeText.setFont(new Font("SansSerif", Font.BOLD, 24));
         cellSizeAttributeText.setForeground(new Color(255, 255, 255));
@@ -210,11 +210,26 @@ public class App {
         cellSizeAttribute.add(cellSizeAttributeValue);
         cellSizeAttribute.add(cellSizeAttributeText);
 
+        // Button that locks in the setup values and creates the simulation.
+        Button createSimulationBtn = new Button("Create");
+        createSimulationBtn.setBounds(100, setupFrameHeight-120, 300, 80);
+        createSimulationBtn.setFont(new Font("SansSerif", Font.BOLD, 42));
+        createSimulationBtn.setForeground(new Color(255, 255, 255));
+        createSimulationBtn.setBackground(new Color(40, 40, 40));
+        createSimulationBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                generateForestSimulation();
+                setupFrame.dispose();
+            }
+        });
+
+
         //Compile frame content
         setupFrame.add(title);
         setupFrame.add(widthAttribute);
         setupFrame.add(heightAttribute);
         setupFrame.add(cellSizeAttribute);
+        setupFrame.add(createSimulationBtn);
 
         setupFrame.setVisible(true);
 
@@ -234,6 +249,8 @@ public class App {
         
         for (int x = 0; x < gridWidth; x++) {
             for (int y = 0; y < gridHeight; y++) {
+
+                
                 if (Math.random() < treeGenerateProbablity) {
                     int maxAge = 50 + (int)(Math.random() * 50);
                     int startAge = 1 + (int)(Math.random() * maxAge);
