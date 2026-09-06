@@ -176,7 +176,7 @@ public class App {
 
 
     //Method by Aaron,
-    private static void generateForestSimulation() {
+    private static void generateTrees() {
         EntityManager<Tree> treeEntityManager = new EntityManager<>();
         
         for (int x = 0; x < gridWidth; x++) {
@@ -184,11 +184,19 @@ public class App {
                 if (Math.random() < treeGenerateProbablity) {
                     int maxAge = 50 + (int)(Math.random() * 50);
                     int startAge = 1 + (int)(Math.random() * maxAge);
-                    
-                    // Spawn tree (1% chance to start already burning)
                     boolean startsOnFire = Math.random() < 0.01; 
 
-                    treeEntityManager.add(new Tree(x, y, maxAge, startAge, startsOnFire));
+                    Tree.TreeState initialState;
+                    if (startsOnFire) {
+                        initialState = Tree.TreeState.BURNING;
+                    } else if (startAge >= maxAge) {
+                        initialState = Tree.TreeState.FULLY_GROWN;
+                    } else {
+                        initialState = Tree.TreeState.GROWING;
+                    }
+
+                    Tree tree = new Tree(x, y, maxAge, startAge, initialState);
+                    treeEntityManager.add(tree);
                 }
             }
         }
