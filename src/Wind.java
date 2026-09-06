@@ -1,11 +1,27 @@
+/**
+ * Represents the wind conditions used by the forest simulation.
+ *
+ * The inherited x and y values represent the wind direction rather than a
+ * physical position. Direction values are expected to remain between -100
+ * and 100, while wind power is kept between 0 and 100.
+ */
 public class Wind extends Entity {
+    /** Current wind strength, from 0 (calm) to 100 (strong). */
     int windPower;
 
+    /** Creates wind with an initial direction and power. */
     public Wind(int x, int y, int windPower){
         super(x, y);
         this.windPower = windPower;
     }
 
+    /**
+     * Smoothly moves the wind toward a target direction and power.
+     *
+     * Direction changes use an 18 percent blend and power changes use a
+     * 12 percent blend. A small sine-based adjustment adds gust variation.
+     * The resulting direction and power are clamped to their valid ranges.
+     */
     public void changeDirection(int targetX, int targetY, int targetPower){
         double directionBlend = 0.18;
         double powerBlend = 0.12;
@@ -20,6 +36,7 @@ public class Wind extends Entity {
         this.windPower = clamp((int)Math.round(newPower), 0, 100);
     }
 
+    /** Keeps a value inside the supplied inclusive range. */
     private int clamp(int value, int min, int max){
         if (value < min) {
             return min;
@@ -30,6 +47,10 @@ public class Wind extends Entity {
         return value;
     }
 
+    /**
+     * Reserved for automatic wind changes during a simulation update.
+     * Wind currently changes only when changeDirection is called explicitly.
+     */
     public void update() {
         
     }
