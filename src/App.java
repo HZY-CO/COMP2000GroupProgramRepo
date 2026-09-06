@@ -238,7 +238,8 @@ public class App {
 
     };
 
-    //Method by Aaron, modified by Ed. Method will create the simulation frame and populate the frame with randomised green squares to represent trees.
+    // Method by Aaron, modified by Ed. Method will create the simulation frame and         |   NEEDS WORK
+    // populate the frame with randomised green squares to represent trees.
     private static EntityManager<Tree> generateTrees() {
         EntityManager<Tree> treeEntityManager = new EntityManager<>();
 
@@ -271,6 +272,7 @@ public class App {
                         initialState = Tree.TreeState.GROWING;
                     }
 
+                    // Visualisation -- NEEDS WORK.
                     Tree tree = new Tree(x, y, maxAge, startAge, initialState);
                     treeEntityManager.add(tree);
 
