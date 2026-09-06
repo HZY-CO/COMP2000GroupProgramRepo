@@ -238,7 +238,7 @@ public class App {
 
     };
 
-    //Method by Aaron, modified by Ed.
+    //Method by Aaron, modified by Ed. Method will create the simulation frame and populate the frame with randomised green squares to represent trees.
     private static EntityManager<Tree> generateTrees() {
         EntityManager<Tree> treeEntityManager = new EntityManager<>();
 
