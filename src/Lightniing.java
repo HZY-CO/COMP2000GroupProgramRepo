@@ -1,18 +1,11 @@
-/**
- * Lightning strikes at a fixed position (x, y) 
- * strikeChance determines whether a strike occurs
- * igniteChance determines whether a strike starts a fire
- * duration is how long the strike lasts
- */
-
 import java.util.List;
 
 public class Lightniing extends Entity {
     
     int x;
     int y;
-    double strikeChance;
-    double igniteChance;
+    double strikeChance; // Determines whether a strike occurs(not every tick will have a strike)
+    double igniteChance; // Determines whether a strike sets a tree on fire
     boolean hasStruck;
 
     public Lightning(int x, int y, double strikeChance, double igniteChance) {
@@ -25,12 +18,11 @@ public class Lightniing extends Entity {
     }
 
 
-    public void update(List<Tree> trees) {
+    public void update(List<Tree> treeList) {
         this.hasStruck = Math.random() < this.strikeChance;
 
         if (this.hasStruck) {
-            for (int i = 0; i < trees.size(); i++) {
-                Tree tree = trees.get(i);
+            for (Tree tree : treesList) {
                 strikeTree(tree);
             }
         }
