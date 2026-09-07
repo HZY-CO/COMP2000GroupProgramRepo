@@ -10,9 +10,14 @@ public class Fire extends Entity {
         this.burning = true;
     }
 
-    public void update(){
+    public void update(Tree tree, Wind wind){
+        if (burning_{
+            duration--;
+        })
 
     }
+
+
 
     int fireIntensity(){
         return duration;
