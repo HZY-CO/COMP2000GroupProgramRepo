@@ -1,12 +1,14 @@
 import java.util.List;
 
-public class Lightniing extends Entity {
+public class Lightning extends Entity {
     
     int x;
     int y;
+    int duration;
     double strikeChance; // Determines whether a strike occurs(not every tick will have a strike)
     double igniteChance; // Determines whether a strike sets a tree on fire
     boolean hasStruck;
+    
 
     public Lightning(int x, int y, double strikeChance, double igniteChance) {
 
@@ -22,7 +24,7 @@ public class Lightniing extends Entity {
         this.hasStruck = Math.random() < this.strikeChance;
 
         if (this.hasStruck) {
-            for (Tree tree : treesList) {
+            for (Tree tree : treeList) {
                 strikeTree(tree);
             }
         }
