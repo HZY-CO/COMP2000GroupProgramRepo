@@ -1,42 +1,58 @@
+import java.util.List;
+import java.util.ArrayList;
+
+/**
+ * Represents a forest containing trees, fires, lightnings, and winds.
+ */
+
 public class Forest {
-    private EntityManager<Tree> trees = new EntityManager<Tree>();
-    private EntityManager<Fire> fires = new EntityManager<Fire>();
-    private EntityManager<Lightning> lightnings = new EntityManager<Lightning>();
-    private EntityManager<Wind> winds = new EntityManager<Wind>();
+    private final int width;
+    private final int height;
+    private final Cell[][] grid;
 
-    public void addTree(Tree tree) {
-        trees.add(tree);
+    public Forest(int width, int height) {
+        this.width = width;
+        this.height = height;
+        this.grid = new Cell[width][height];
     }
 
-    public void addFire(Fire fire){
-        fires.add(fire);
+    public int getWidth() {
+        return width;
     }
 
-    public void addLightning(Lightning lightning) {
-        lightnings.add(lightning);
+    public int getHeight() {
+        return height;
     }
 
-    public void addWind(Wind wind) {
-        winds.add(wind);
+    public boolean inForestBounds(int x, int y) {
+        return x >= 0 && x < width && y >= 0 && y < height;
     }
 
-    public EntityManager<Tree> getTrees() {
-        return trees;
+    public Cell getCellfromPosition(Position position) {
+        if (inForestBounds(position.x, position.y)) {
+            return grid[position.x][position.y];
+        }
+        return null;
     }
 
-    public EntityManager<Fire> getFires() {
-        return fires;
-    }
+    /**
+     * Returns a list of neighbouring cells for a given position in the forest. 
+     * @param position
+     * @return
+     */
+    public List<Cell> getNeighbourCells(Position position) {
+        List<Cell> neighbours = new ArrayList<>();
 
-    public EntityManager<Lightning> getLightnings() {
-        return lightnings;
-    }
+        Position[] neighbourPositions = position.getNeighbourPositions();
+        for (Position pos : neighbourPositions) {
+            if (inForestBounds(pos.x, pos.y)) {
+                Cell neighbourCell = getCellfromPosition(pos);
+                if (neighbourCell != null) {
+                    neighbours.add(neighbourCell);
+                }
+            }
+        }
 
-    public EntityManager<Wind> getWinds() {
-        return winds;
-    }
-
-    public void update() {
-        
+        return neighbours;
     }
 }

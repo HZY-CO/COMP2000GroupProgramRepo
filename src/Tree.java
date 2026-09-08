@@ -1,7 +1,7 @@
 import java.awt.Color;
 import java.awt.Graphics;
 
-public class Tree extends Entity {
+public class Tree extends Entity implements Tickable, Flammable {
     public enum TreeState {
         FULLY_GROWN,
         GROWING,
@@ -10,18 +10,48 @@ public class Tree extends Entity {
     }
 
     private TreeState state;
-    private int maxAge;
-    private int age;
+    private final int maxAge;
+    private int age = 0;
 
-    public Tree(int x, int y, int maxAge, int age, TreeState state) {
-        super(x, y);
+    public Tree(Position position, int maxAge, TreeState state) {
+        super(position);
         this.maxAge = maxAge;
-        this.age = age;
         this.state = state;
     }
 
+    public TreeState getState() {
+        return state;
+    }
+
+    // Flammable interface methods
+    @Override 
+    public Position getPosition() {
+        return position;
+    }
+
+    @Override 
+    public boolean isBurning() {
+        return state == TreeState.BURNING;
+    }
+
+    @Override 
+    public void ignite() {
+        if (state == TreeState.FULLY_GROWN || state == TreeState.GROWING) {
+            state = TreeState.BURNING;
+        }
+    }
+
+    @Override 
+    public void burnOut() {
+        if (state == TreeState.BURNING) {
+            state = TreeState.BURNT;
+            setActive(false);
+        }
+    }
+
+    // Tickable interface method
     @Override
-    public void update() {
+    public void tick() {
         switch (state) {
             case GROWING:
                 age++;
@@ -30,7 +60,6 @@ public class Tree extends Entity {
                     state = TreeState.FULLY_GROWN;
                 }
                 break;
-
             case FULLY_GROWN:
                 // Age remains constant until tree is ignited
                 break;
@@ -42,7 +71,6 @@ public class Tree extends Entity {
                     setActive(false);
                 }
                 break;
-
             case BURNT:
                 break;
         }   
@@ -64,6 +92,6 @@ public class Tree extends Entity {
                 break;
         }
 
-        g.fillRect(x * cellSize, y * cellSize, cellSize, cellSize); 
+        g.fillRect(position.x * cellSize, position.y * cellSize, cellSize, cellSize); 
     }
 }
