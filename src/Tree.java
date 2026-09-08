@@ -12,6 +12,7 @@ public class Tree extends Entity implements Tickable, Flammable {
     private TreeState state;
     private final int maxAge;
     private int age = 0;
+    private boolean active = true;
 
     public Tree(Position position, int maxAge, TreeState state) {
         super(position);
@@ -50,6 +51,16 @@ public class Tree extends Entity implements Tickable, Flammable {
     }
 
     // Tickable interface method
+    @Override 
+    public boolean isActive() {
+        return active;
+    }
+    
+    @Override
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
     @Override
     public void tick() {
         switch (state) {

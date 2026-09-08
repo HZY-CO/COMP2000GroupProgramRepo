@@ -55,4 +55,17 @@ public class Forest {
 
         return neighbours;
     }
+
+    public List<Tree> getAllTrees() {
+        List<Tree> trees = new ArrayList<>();
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                Cell cell = grid[x][y];
+                if (cell != null && cell.getTree() != null) {
+                    trees.add(cell.getTree());
+                }
+            }
+        }
+        return trees;
+    }
 }
