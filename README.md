@@ -1,6 +1,6 @@
 # COMP2000 Forest Fire Simulator
 ### Members: 
-Zeu Sul, Joshua Martin, [add your name]
+Zeu Sul, Joshua Martin, Cooper Went,  [add your name]
 
 ___
 
