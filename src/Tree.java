@@ -1,37 +1,108 @@
 import java.awt.Color;
 import java.awt.Graphics;
 
-public class Tree extends Entity{
-    int maxAge;
-    int age;
-    boolean isBurning;
+public class Tree extends Entity implements Tickable, Flammable {
+    public enum TreeState {
+        FULLY_GROWN,
+        GROWING,
+        BURNING,
+        BURNT
+    }
 
-    public Tree(int x, int y, int maxAge, int age, boolean isBurning) {
-        super(x, y);
+    private TreeState state;
+    private final int maxAge;
+    private int age = 0;
+    private boolean active = true;
+
+    public Tree(Position position, int maxAge, TreeState state) {
+        super(position);
         this.maxAge = maxAge;
-        this.age = age;
-        this.isBurning = isBurning;
+        this.state = state;
     }
 
-    void growing() {
-        if (this.age < this.maxAge && !this.isBurning) {
-            this.age++;
+    public TreeState getState() {
+        return state;
+    }
+
+    // Flammable interface methods
+    @Override 
+    public Position getPosition() {
+        return position;
+    }
+
+    @Override 
+    public boolean isBurning() {
+        return state == TreeState.BURNING;
+    }
+
+    @Override 
+    public void ignite() {
+        if (state == TreeState.FULLY_GROWN || state == TreeState.GROWING) {
+            state = TreeState.BURNING;
         }
     }
 
-    void burning() {
-        if (this.age > 0 && this.isBurning) {
-            this.age--;
+    @Override 
+    public void burnOut() {
+        if (state == TreeState.BURNING) {
+            state = TreeState.BURNT;
+            setActive(false);
         }
+    }
+
+    // Tickable interface method
+    @Override 
+    public boolean isActive() {
+        return active;
+    }
+    
+    @Override
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     @Override
-    public void update() {    
+    public void tick() {
+        switch (state) {
+            case GROWING:
+                age++;
+                // Tree has fully grown and will not age further
+                if (age == maxAge) {
+                    state = TreeState.FULLY_GROWN;
+                }
+                break;
+            case FULLY_GROWN:
+                // Age remains constant until tree is ignited
+                break;
+
+            case BURNING:
+                age--;
+                if (age <= 0) {
+                    state = TreeState.BURNT;
+                    setActive(false);
+                }
+                break;
+            case BURNT:
+                break;
+        }   
     }
 
-    public void draw(Graphics g) {
-        g.setColor(new Color(34, 139, 34));
+    public void draw(Graphics g, int cellSize) {
+        switch (state) {
+            case FULLY_GROWN:
+                g.setColor(new Color(34, 139, 34));   // Deep Forest Green
+                break;
+            case GROWING:
+                g.setColor(new Color(144, 238, 144)); // Light Green
+                break;
+            case BURNING:
+                g.setColor(new Color(255, 69, 0));    // Fire Orange-Red
+                break;
+            case BURNT:
+                g.setColor(new Color(50, 50, 50));    // Dark Charcoal
+                break;
+        }
 
-        g.fillRect(x * 1, y * 1, 1 - 1, 1 - 1);
+        g.fillRect(position.x * cellSize, position.y * cellSize, cellSize, cellSize); 
     }
 }

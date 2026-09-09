@@ -1,32 +1,11 @@
 public abstract class Entity {
-    protected int x;
-    protected int y;
-    protected boolean active;
+    protected final Position position;
 
-    public Entity(int x, int y) {
-        this.x = x;
-        this.y = y;
+    public Entity(Position position) {
+        this.position = position;
     }
 
-    public abstract void update();
- 
-    public int getX() {
-        return x;
-    }
- 
-    public int getY() {
-        return y;
-    }
- 
-    public void setPosition(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-    public void setActive(boolean active) {
-        this.active = active;
+    public Position getPosition() {
+        return position;
     }
 }

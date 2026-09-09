@@ -1,23 +1,17 @@
-/**
- * Lightning strikes at a fixed position (x, y) 
- * strikeChance determines whether a strike occurs
- * igniteChance determines whether a strike starts a fire
- * duration is how long the strike lasts
- */
-
 import java.util.List;
 
-public class Lightniing extends Entity {
+public class Lightning extends Entity {
     
     int x;
     int y;
-    double strikeChance;
-    double igniteChance;
+    int duration;
+    double strikeChance; // Determines whether a strike occurs(not every tick will have a strike)
+    double igniteChance; // Determines whether a strike sets a tree on fire
     boolean hasStruck;
+    
 
     public Lightning(int x, int y, double strikeChance, double igniteChance) {
-
-        super(x, y);
+        super(new Position(x, y));
         this.duration = duration;
         this.strikeChance = strikeChance;
         this.igniteChance = igniteChance;
@@ -25,12 +19,11 @@ public class Lightniing extends Entity {
     }
 
 
-    public void update(List<Tree> trees) {
+    public void update(List<Tree> treeList) {
         this.hasStruck = Math.random() < this.strikeChance;
 
         if (this.hasStruck) {
-            for (int i = 0; i < trees.size(); i++) {
-                Tree tree = trees.get(i);
+            for (Tree tree : treeList) {
                 strikeTree(tree);
             }
         }
@@ -39,17 +32,14 @@ public class Lightniing extends Entity {
     
 
     private void strikeTree(Tree tree) {
-
-        if (tree.x == this.x && tree.y == this.y) {
+        if (tree.getPosition().x == this.getPosition().x && tree.getPosition().y == this.getPosition().y) {
             if (Math.random() < this.igniteChance) {
-                tree.isBurning = true;
+                tree.ignite();
+            }
         }
     }
-  }
 
-  int lightningIntensity() {
-    return duration;
-  }
-
-  
+    int lightningIntensity() {
+        return duration;
+    }
 } 
