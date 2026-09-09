@@ -1,15 +1,12 @@
-public class Cell {
-    private final Position position;
-
+public class Cell extends Position {
     private Tree tree;
 
-    public Cell(Position position) {
-        this.position = position;
-        this.tree = null;
+    public Cell(int x, int y) {
+        super(x, y);
     }
 
-    public Position getPosition() {
-        return position;
+    public Cell(Position position) {
+        this(position.getX(), position.getY());
     }
 
     public Tree getTree() {

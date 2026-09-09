@@ -1,19 +1,26 @@
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Represents a forest containing trees, fires, lightnings, and winds.
+ * Represents a forest containing trees, and wind events.
  */
-
 public class Forest {
     private final int width;
     private final int height;
     private final Cell[][] grid;
+    private final List<Wind> winds;
 
     public Forest(int width, int height) {
         this.width = width;
         this.height = height;
         this.grid = new Cell[width][height];
+        this.winds = new ArrayList<>();
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                grid[x][y] = new Cell(x, y);
+            }
+        }
     }
 
     public int getWidth() {
@@ -29,30 +36,20 @@ public class Forest {
     }
 
     public Cell getCellfromPosition(Position position) {
-        if (inForestBounds(position.x, position.y)) {
-            return grid[position.x][position.y];
+        if (position == null || !inForestBounds(position.getX(), position.getY())) {
+            return null;
         }
-        return null;
+        return grid[position.getX()][position.getY()];
     }
 
-    /**
-     * Returns a list of neighbouring cells for a given position in the forest. 
-     * @param position
-     * @return
-     */
     public List<Cell> getNeighbourCells(Position position) {
         List<Cell> neighbours = new ArrayList<>();
-
         Position[] neighbourPositions = position.getNeighbourPositions();
         for (Position pos : neighbourPositions) {
-            if (inForestBounds(pos.x, pos.y)) {
-                Cell neighbourCell = getCellfromPosition(pos);
-                if (neighbourCell != null) {
-                    neighbours.add(neighbourCell);
-                }
+            if (inForestBounds(pos.getX(), pos.getY())) {
+                neighbours.add(grid[pos.getX()][pos.getY()]);
             }
         }
-
         return neighbours;
     }
 
@@ -67,5 +64,21 @@ public class Forest {
             }
         }
         return trees;
+    }
+
+    public List<Wind> getWinds() {
+        return new ArrayList<>(winds);
+    }
+
+    public void addWind(Wind wind) {
+        if (wind != null) {
+            winds.add(wind);
+        }
+    }
+
+    public void removeWind(Wind wind) {
+        if (wind != null) {
+            winds.remove(wind);
+        }
     }
 }
