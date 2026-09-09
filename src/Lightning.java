@@ -11,8 +11,7 @@ public class Lightning extends Entity {
     
 
     public Lightning(int x, int y, double strikeChance, double igniteChance) {
-
-        super(x, y);
+        super(new Position(x, y));
         this.duration = duration;
         this.strikeChance = strikeChance;
         this.igniteChance = igniteChance;
@@ -33,17 +32,14 @@ public class Lightning extends Entity {
     
 
     private void strikeTree(Tree tree) {
-
-        if (tree.x == this.x && tree.y == this.y) {
+        if (tree.getPosition().x == this.getPosition().x && tree.getPosition().y == this.getPosition().y) {
             if (Math.random() < this.igniteChance) {
-                tree.isBurning = true;
+                tree.ignite();
+            }
         }
     }
-  }
 
-  int lightningIntensity() {
-    return duration;
-  }
-
-  
+    int lightningIntensity() {
+        return duration;
+    }
 } 
