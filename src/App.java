@@ -20,11 +20,17 @@ public class App {
     private static int cellSize = 32; // The size of each cell in pixels. Cells will be square.
     private static int maxCellSize = 512;
 
+    private static int simulationFrameRate = 24;    // Controls the frame rate of the simulation, speed is dependent on the frame rate.
+
     // Tree Generation Constants
+    private static Forest forest;
+    private static ForestManager forestManager;
     private static double forestDensity = 0.7;
     private static int treeMaxAge = 50;
 
-    private static Forest forest;
+    // Lightning stuff
+    private static double chanceOfLightning = 0.2; // The chance of lightning every frame.
+    private static double chanceOfIgnition = 0.6;
 
     public static void main(String[] Args) throws Exception {
         final int setupFrameWidth = 500;
@@ -239,7 +245,7 @@ public class App {
     private static void generateTrees() {
         forest = new Forest(gridWidth, gridHeight);
         Wind wind = new Wind(2, 5, 10);
-        ForestManager forestManager = new ForestManager(forest, wind);
+        forestManager = new ForestManager(forest, wind);
 
         int buffer = 120;
         int mainFrameSizeX = gridWidth * cellSize + buffer;
@@ -256,6 +262,7 @@ public class App {
         for (int x = 0; x < gridWidth; x++) {
             for (int y = 0; y < gridHeight; y++) {
                 if (Math.random() < forestDensity) {
+                    Position treePos = new Position(x, y);
                     int maxAge = treeMaxAge;
                     int startAge = 1 + (int) (Math.random() * treeMaxAge);
                     // In case Lightning is not complete, randomised burning Tree spawn
@@ -264,6 +271,10 @@ public class App {
                     Tree.TreeState initialState;
                     if (startsOnFire) {
                         initialState = Tree.TreeState.BURNING;
+                        int maxFireDuration = (int)(Math.random() * 100);
+                        int maxFireIntensity = (int)(Math.random() * 100);
+                        Fire fire = new Fire(treePos, maxFireDuration, maxFireIntensity, forestManager);
+                        forest.indexFire(fire);
                     } else if (startAge == maxAge) {
                         initialState = Tree.TreeState.FULLY_GROWN;
                     } else {
@@ -279,11 +290,10 @@ public class App {
                     int treePanelY = buffer / 2 + (y * cellSize);
                     treePanel.setLocation(treePanelX, treePanelY);
 
-                    Position treePos = new Position(x, y);
                     Tree tree = new Tree(treePos, maxAge, initialState, treePanel);
                     forestManager.addTree(tree);
 
-                    tree.draw(treePanel, cellSize);
+                    tree.draw();
 
                     mainFrame.add(treePanel);
 
@@ -299,21 +309,43 @@ public class App {
             }
         });
 
-        Timer timer = new Timer(1000, e -> {
+        int millisecondsPerFrame = 1000/simulationFrameRate;
+        Timer timer = new Timer(millisecondsPerFrame, e -> {
             wind.update();
-            update();
+            updateTrees();
+
+            int randomX = 0 + (int)(Math.random() * (gridWidth + 1));
+            int randomY = 0 + (int)(Math.random() * (gridHeight + 1));
+            Position lightningPos = new Position(randomX, randomY);
+            Lightning lightning = new Lightning(lightningPos, 1, chanceOfLightning, chanceOfIgnition, 10, forest);
+            lightning.tick();
         });
         timer.start();
 
     }
 
-    private static void update() {
-        List<Tree> list = forest.getAllTrees();
-        for (int i = 0; i < list.size(); i++) {
+    private static void updateTrees() {
+        List<Tree> treeList = forest.getAllTrees();
+        for (int i = 0; i < treeList.size(); i++) {
             {
-                list.get(i).tick();
-                list.get(i).draw(null, cellSize);
+                treeList.get(i).tick();
+                treeList.get(i).draw();
             }
         }
+        
+        List<Fire> fireList = forest.getAllFires();
+        for (int i = 0; i < fireList.size(); i++) {
+            {
+                fireList.get(i).tick();
+            }
+        }
+    }
+
+    public static void addFire(Position pos)
+    {
+        int maxFireDuration = (int)(Math.random() * 100);
+        int maxFireIntensity = (int)(Math.random() * 100);
+        Fire fire = new Fire(pos, maxFireDuration, maxFireIntensity, forestManager);
+        forest.indexFire(fire);
     }
 }

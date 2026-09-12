@@ -1,9 +1,10 @@
+
 // import java.awt.Color;
 import java.util.List;
 
 public class Lightning extends Entity {
-    
-    private int duration; 
+
+    private int duration;
     private double strikeChance; // Determines whether a strike occurs(not every tick will have a strike)
     private double igniteChance; // Determines whether a strike sets a tree on fire
     private boolean hasStruck;
@@ -13,19 +14,19 @@ public class Lightning extends Entity {
     private int cooldownTicks = 0;
     private int cooldownDuration;
     private int totalStrikes = 0;
-    
 
-    public Lightning(Position position, int duration, double strikeChance, double igniteChance, int cooldownDuration, Forest forest) {
+    public Lightning(Position position, int duration, double strikeChance, double igniteChance, int cooldownDuration,
+            Forest forest) {
         super(position);
 
-        if (strikeChance <0.0 || strikeChance > 1.0) {
-            throw new IllegalArgumentException ("strikeChance must be between 0.0 & 1.0");
+        if (strikeChance < 0.0 || strikeChance > 1.0) {
+            throw new IllegalArgumentException("strikeChance must be between 0.0 & 1.0");
         }
-        if (igniteChance <0.0 || igniteChance > 1.0) {
-            throw new IllegalArgumentException ("ignite Chance must be between 0.0 & 1.0");
+        if (igniteChance < 0.0 || igniteChance > 1.0) {
+            throw new IllegalArgumentException("ignite Chance must be between 0.0 & 1.0");
         }
         if (cooldownDuration < 0) {
-            throw new IllegalArgumentException ("cooldowDuration can't be negative");
+            throw new IllegalArgumentException("cooldowDuration can't be negative");
         }
         this.duration = duration;
         this.strikeChance = strikeChance;
@@ -43,34 +44,31 @@ public class Lightning extends Entity {
         } else {
             hasStruck = Math.random() < strikeChance;
 
-        if (hasStruck) {
-            totalStrikes++;
-            cooldownTicks = cooldownDuration;
+            if (hasStruck) {
+                totalStrikes++;
+                cooldownTicks = cooldownDuration;
 
-            List<Tree> trees = forest.getAllTrees();
-            for (Tree tree : trees) {
-                strikeTree(tree);
+                List<Tree> trees = forest.getAllTrees();
+                for (Tree tree : trees) {
+                    strikeTree(tree);
+                }
             }
         }
-    }
-        
         duration--;
         if (duration <= 0) {
             active = false;
-            }
         }
-    
-    
+    }
 
     private void strikeTree(Tree tree) {
-        Position treePos = tree.getPosition(); 
+        Position treePos = tree.getPosition();
         if (treePos.x == position.x && treePos.y == position.y) {
             if (Math.random() < igniteChance) {
                 tree.ignite();
             }
         }
     }
-    
+
     public boolean isActive() {
         return active;
     }

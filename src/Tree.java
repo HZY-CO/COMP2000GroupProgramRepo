@@ -14,6 +14,8 @@ public class Tree extends Entity implements Tickable, Flammable {
     private int age = 0;
     private boolean active = true;
     private Panel panel;
+    private int maxBurntDuration = 10;
+    private int burntTimer = maxBurntDuration;
 
     public Tree(Position position, int maxAge, TreeState state, Panel panel) {
         super(position);
@@ -41,6 +43,7 @@ public class Tree extends Entity implements Tickable, Flammable {
     public void ignite() {
         if (state == TreeState.FULLY_GROWN || state == TreeState.GROWING) {
             state = TreeState.BURNING;
+            App.addFire(position);
         }
     }
 
@@ -69,30 +72,45 @@ public class Tree extends Entity implements Tickable, Flammable {
             case GROWING:
                 age++;
                 // Tree has fully grown and will not age further
-                if (age == maxAge) {
+                if (age >= maxAge) {
                     state = TreeState.FULLY_GROWN;
                 }
                 break;
             case FULLY_GROWN:
                 // Age remains constant until tree is ignited
+                if(age != maxAge){
+                    //System.err.println("larping ah tree");
+                    age = maxAge;
+                }
+                //System.err.println("Tree at " + position.x + ", " +  position.y + " is fully grown!");
                 break;
 
             case BURNING:
                 age--;
+                System.err.println("ahh im burning!!!");
                 if (age <= 0) {
                     state = TreeState.BURNT;
-                    setActive(false);
+                    //setActive(false);
+                    age = 0;
                 }
                 break;
             case BURNT:
+                burntTimer -= 1;
+                if (burntTimer <= 0)
+                {
+                    System.err.println("i want to grow again!!");
+                    state = TreeState.GROWING;
+                    burntTimer = maxBurntDuration;
+                    age = 0;
+                }
                 break;
         }   
     }
 
-    public void draw(Panel p, int cellSize) {
+    public void draw() {
         switch (state) {
             case FULLY_GROWN:
-                //panel.setBackground(new Color(34, 139, 34));   // Deep Forest Green
+                panel.setBackground(new Color(0, 1f, 0));   // Green
                 break;
             case GROWING:
                 float g = ((float) age / maxAge);
@@ -105,18 +123,17 @@ public class Tree extends Entity implements Tickable, Flammable {
                 panel.setBackground(new Color(0, g, 0));
                 break;
             case BURNING:
-                float r = 1 - ((float) age / maxAge);
+                float r = ((float) age / maxAge);
                 if (r <= 0) {
                     r = 0;
                 }
                 if (r > 1) {
                     r = 1;
                 }
-                System.err.println(r);
                 panel.setBackground(new Color(r, 0, 0));
                 break;
             case BURNT:
-                panel.setBackground(new Color(50, 50, 50));    // Dark Charcoal
+                panel.setBackground(new Color(0, 0, 0));    // Black
                 break;
         }
 

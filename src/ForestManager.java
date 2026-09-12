@@ -18,4 +18,7 @@ public class ForestManager {
     public void addTree(Tree tree) {
         forest.getCellfromPosition(tree.getPosition()).setTree(tree);
     }
+    public void addFire(Fire fire) {
+        forest.getCellfromPosition(fire.getPosition());
+    }
 }

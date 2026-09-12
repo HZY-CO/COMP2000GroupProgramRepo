@@ -2,7 +2,7 @@ import java.util.List;
 
 public class Fire extends Entity implements Tickable {
     private int duration;
-    private int intensity;
+    private int intensity; // Out of 100
     private boolean active = true;
     private ForestManager forestManager; // reference to the forest to access trees and other entities such as Trees, Lightning and Wind
 

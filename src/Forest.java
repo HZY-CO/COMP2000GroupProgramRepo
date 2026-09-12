@@ -10,6 +10,7 @@ public class Forest {
     private int height;
     //private final Cell[][] grid;
     private ArrayList<Cell> grid = new ArrayList<Cell>();
+    private ArrayList<Fire> currentFires = new ArrayList<Fire>();
 
     public Forest(int width, int height) {
         this.width = width;
@@ -95,5 +96,18 @@ public class Forest {
                 }
             }
         return trees;
+    }
+
+    public List<Fire> getAllFires() {
+        List<Fire> fires = new ArrayList<>();
+        for (int i = 0; i < currentFires.size(); i++) {
+                fires.add(currentFires.get(i));
+            }
+        return fires;
+    }
+
+    public void indexFire(Fire fire)
+    {
+        currentFires.add(fire);
     }
 }
