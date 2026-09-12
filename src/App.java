@@ -240,8 +240,10 @@ public class App {
 
     // Method by Aaron, modified by Ed. Method will create the simulation frame and         |   NEEDS WORK
     // populate the frame with randomised green squares to represent trees.
-    private static EntityManager<Tree> generateTrees() {
-        EntityManager<Tree> treeEntityManager = new EntityManager<>();
+    private static Forest generateTrees() {
+        Forest forest = new Forest(gridWidth, gridHeight);
+        Wind wind = new Wind();
+        ForestManager forestManager = new ForestManager(forest, wind);
 
         int buffer = 120;
         int mainFrameSizeX = gridWidth * cellSize + buffer;
@@ -252,6 +254,8 @@ public class App {
         mainFrame.setLayout(null);
         mainFrame.setBackground(new Color(40, 40, 40));
         mainFrame.setResizable(false);
+
+
 
         // Iterate over the 2d grid and fill out the space with
         // Trees in different states
@@ -273,8 +277,9 @@ public class App {
                     }
 
                     // Visualisation -- NEEDS WORK.
-                    Tree tree = new Tree(x, y, maxAge, startAge, initialState);
-                    treeEntityManager.add(tree);
+                    Position treePos = new Position(maxAge, y);
+                    Tree tree = new Tree(treePos, maxAge, initialState);
+                    forestManager.addTree(tree);
 
                     Panel treePanel = new Panel();
                     treePanel.setSize(cellSize, cellSize);
@@ -298,6 +303,6 @@ public class App {
             }
         });
 
-        return treeEntityManager;
+        return forest;
     }
 }
