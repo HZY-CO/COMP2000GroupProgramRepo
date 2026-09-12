@@ -41,8 +41,8 @@ public class Forest {
      * @return
      */
     public List<Cell> getNeighbourCells(Position position) {
-        List<Cell> neighbours = new ArrayList<>();
-
+        List<Cell> neighbours = new ArrayList<>(); 
+        
         Position[] neighbourPositions = position.getNeighbourPositions();
         for (Position pos : neighbourPositions) {
             if (inForestBounds(pos.x, pos.y)) {
