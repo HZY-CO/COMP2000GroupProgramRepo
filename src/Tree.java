@@ -80,4 +80,9 @@ public class Tree extends Entity implements Tickable {
             active = false;
         }
     }
+
+    public boolean isBurning() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'isBurning'");
+    }
 }
