@@ -242,7 +242,7 @@ public class App {
     // populate the frame with randomised green squares to represent trees.
     private static Forest generateTrees() {
         Forest forest = new Forest(gridWidth, gridHeight);
-        Wind wind = new Wind();
+        Wind wind = new Wind(2, 5, 10);
         ForestManager forestManager = new ForestManager(forest, wind);
 
         int buffer = 120;
@@ -277,7 +277,7 @@ public class App {
                     }
 
                     // Visualisation -- NEEDS WORK.
-                    Position treePos = new Position(maxAge, y);
+                    Position treePos = new Position(x, y);
                     Tree tree = new Tree(treePos, maxAge, initialState);
                     forestManager.addTree(tree);
 

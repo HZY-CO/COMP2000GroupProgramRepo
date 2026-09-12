@@ -25,11 +25,13 @@ public class Forest {
     }
 
     public boolean inForestBounds(int x, int y) {
+        System.err.println(x >= 0 && x < width && y >= 0 && y < height);
         return x >= 0 && x < width && y >= 0 && y < height;
     }
 
     public Cell getCellfromPosition(Position position) {
         if (inForestBounds(position.x, position.y)) {
+            System.err.println("reached");
             return grid[position.x][position.y];
         }
         return null;
