@@ -14,11 +14,8 @@ public class ForestManager {
     public Wind getWind() {
         return wind;
     }
-
+    
     public void addTree(Tree tree) {
-        Cell cell = forest.getCellfromPosition(tree.getPosition());
-        if (cell != null) {
-            cell.setTree(tree);
-        }
+        forest.getCellfromPosition(tree.getPosition()).setTree(tree);
     }
 }
