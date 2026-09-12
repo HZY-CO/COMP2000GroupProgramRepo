@@ -1,5 +1,5 @@
 import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.Panel;
 
 public class Tree extends Entity implements Tickable, Flammable {
     public enum TreeState {
@@ -13,11 +13,13 @@ public class Tree extends Entity implements Tickable, Flammable {
     private final int maxAge;
     private int age = 0;
     private boolean active = true;
+    private Panel panel;
 
-    public Tree(Position position, int maxAge, TreeState state) {
+    public Tree(Position position, int maxAge, TreeState state, Panel panel) {
         super(position);
         this.maxAge = maxAge;
         this.state = state;
+        this.panel = panel;
     }
 
     public TreeState getState() {
@@ -87,22 +89,39 @@ public class Tree extends Entity implements Tickable, Flammable {
         }   
     }
 
-    public void draw(Graphics g, int cellSize) {
+    public void draw(Panel p, int cellSize) {
         switch (state) {
             case FULLY_GROWN:
-                g.setColor(new Color(34, 139, 34));   // Deep Forest Green
+                //panel.setBackground(new Color(34, 139, 34));   // Deep Forest Green
                 break;
             case GROWING:
-                g.setColor(new Color(144, 238, 144)); // Light Green
+                float g = ((float) age / maxAge);
+                if (g <= 0) {
+                    g = 0;
+                }
+                if (g > 1) {
+                    g = 1;
+                }
+                panel.setBackground(new Color(0, g, 0));
                 break;
             case BURNING:
-                g.setColor(new Color(255, 69, 0));    // Fire Orange-Red
+                float r = 1 - ((float) age / maxAge);
+                if (r <= 0) {
+                    r = 0;
+                }
+                if (r > 1) {
+                    r = 1;
+                }
+                System.err.println(r);
+                panel.setBackground(new Color(r, 0, 0));
                 break;
             case BURNT:
-                g.setColor(new Color(50, 50, 50));    // Dark Charcoal
+                panel.setBackground(new Color(50, 50, 50));    // Dark Charcoal
                 break;
         }
 
-        g.fillRect(position.x * cellSize, position.y * cellSize, cellSize, cellSize); 
+        //p.fillRect(position.x * cellSize, position.y * cellSize, cellSize, cellSize); 
+
+
     }
 }

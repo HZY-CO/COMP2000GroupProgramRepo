@@ -6,14 +6,24 @@ import java.util.ArrayList;
  */
 
 public class Forest {
-    private final int width;
-    private final int height;
-    private final Cell[][] grid;
+    private int width;
+    private int height;
+    //private final Cell[][] grid;
+    private ArrayList<Cell> grid = new ArrayList<Cell>();
 
     public Forest(int width, int height) {
         this.width = width;
         this.height = height;
-        this.grid = new Cell[width][height];
+        //this.grid = new Cell[width][height];
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                Position pos = new Position(x, y);
+                Cell cell = new Cell(pos);
+                grid.add(cell);
+            }
+        }
+
     }
 
     public int getWidth() {
@@ -25,14 +35,23 @@ public class Forest {
     }
 
     public boolean inForestBounds(int x, int y) {
-        System.err.println(x >= 0 && x < width && y >= 0 && y < height);
+        //System.err.println(x >= 0 && x < width && y >= 0 && y < height);
         return x >= 0 && x < width && y >= 0 && y < height;
     }
 
     public Cell getCellfromPosition(Position position) {
         if (inForestBounds(position.x, position.y)) {
-            System.err.println("reached");
-            return grid[position.x][position.y];
+            //System.err.println("reached");
+            for (int i = 0; i < grid.size(); i++) {
+                Cell cell = grid.get(i);
+                if(cell.getPosition().x == position.x && cell.getPosition().y == position.y)
+                {
+                    //System.err.println("found");
+                    return cell;
+                }
+            }
+
+            //return grid[position.x][position.y];
         }
         return null;
     }
@@ -60,14 +79,21 @@ public class Forest {
 
     public List<Tree> getAllTrees() {
         List<Tree> trees = new ArrayList<>();
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                Cell cell = grid[x][y];
+        // for (int x = 0; x < width; x++) {
+        //     for (int y = 0; y < height; y++) {
+        //         Cell cell = grid[x][y];
+        //         if (cell != null && cell.getTree() != null) {
+        //             trees.add(cell.getTree());
+        //         }
+        //     }
+        // }
+
+        for (int i = 0; i < grid.size(); i++) {
+                Cell cell = grid.get(i);
                 if (cell != null && cell.getTree() != null) {
                     trees.add(cell.getTree());
                 }
             }
-        }
         return trees;
     }
 }
