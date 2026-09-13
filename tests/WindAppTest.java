@@ -1,5 +1,10 @@
+package tests;
 import java.awt.*;
 import javax.swing.*;
+
+import Forest;
+import ForestManager;
+import Wind;
 
 public class WindAppTest {
     public static void main(String[] args) {
