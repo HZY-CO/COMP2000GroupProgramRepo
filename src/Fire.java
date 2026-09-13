@@ -54,7 +54,11 @@ public class Fire extends Entity implements Tickable {
 
             double chance = spreadChance(tree, wind);
             if (Math.random() < chance) {
-                tree.ignite();
+                try {
+                    tree.ignite();
+                } catch (TreeStateException ex) {
+                    System.out.println("Failed to ignite tree at " + tree.getPosition() + ": " + ex.getMessage());
+                }
             }
         }
 
