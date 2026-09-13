@@ -13,6 +13,9 @@ public class Forest {
     private ArrayList<Fire> currentFires = new ArrayList<Fire>();
 
     public Forest(int width, int height) {
+        if (width <= 0 || height <= 0) {
+            throw new ForestDimensionException(width, height);
+        }
         this.width = width;
         this.height = height;
         //this.grid = new Cell[width][height];
@@ -41,6 +44,9 @@ public class Forest {
     }
 
     public Cell getCellfromPosition(Position position) {
+        if (!inForestBounds(position.x, position.y)) {
+            throw new PositionExceptions(position);
+        }
         if (inForestBounds(position.x, position.y)) {
             //System.err.println("reached");
             for (int i = 0; i < grid.size(); i++) {
@@ -54,7 +60,7 @@ public class Forest {
 
             //return grid[position.x][position.y];
         }
-        return null;
+        throw new PositionExceptions(position, "No cell found for position");
     }
 
     /**
