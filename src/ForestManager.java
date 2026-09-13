@@ -1,6 +1,6 @@
 public class ForestManager {
     private final Forest forest;
-    private final Wind wind;
+    private Wind wind;
 
     public ForestManager(Forest forest, Wind wind) {
         this.forest = forest;
@@ -13,6 +13,11 @@ public class ForestManager {
 
     public Wind getWind() {
         return wind;
+    }
+
+    public Wind setWind(Wind wind) {
+        this.wind = wind;
+        return this.wind;
     }
     
     public void addTree(Tree tree) {

@@ -4,8 +4,9 @@ import javax.swing.*;
 public class WindAppTest {
     public static void main(String[] args) {
         Forest forest = new Forest(10, 10);
+        ForestManager forestManager = new ForestManager(forest, null);
         Wind wind = new Wind(60, 10, 30);
-        forest.addWind(wind);
+        forestManager.setWind(wind);
 
         JFrame frame = new JFrame("Wind Simulation");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
