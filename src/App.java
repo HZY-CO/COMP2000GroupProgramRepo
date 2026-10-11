@@ -248,7 +248,8 @@ public class App {
         forestManager = new ForestManager(forest, wind);
 
         int buffer = 120;
-        int mainFrameSizeX = gridWidth * cellSize + buffer;
+        int controlPanelWidth = 300;
+        int mainFrameSizeX = gridWidth * cellSize + buffer + controlPanelWidth;
         int mainFrameSizeY = gridHeight * cellSize + buffer;
 
         Frame mainFrame = new Frame("Forest Fire Simulation");
