@@ -1,3 +1,5 @@
+import java.util.stream.IntStream;
+
 /**
  * Represents the wind conditions used by the forest simulation.
  *
@@ -46,9 +48,20 @@ public class Wind extends Position {
         double newPower = this.windPower + (targetPower - this.windPower) * powerBlend;
 
         double gustSwing = Math.sin((newX + newY) * 0.35) * 2.5;
-        this.x = clamp((int) Math.round(newX + gustSwing), -100, 100);
-        this.y = clamp((int) Math.round(newY + gustSwing * 0.75), -100, 100);
-        this.windPower = clamp((int) Math.round(newPower), 0, 100);
+        double[] values = {
+            newX + gustSwing,
+            newY + gustSwing * 0.75,
+            newPower
+        };
+        int[] minimums = {-100, -100, 0};
+        int[] maximums = {100, 100, 100};
+        int[] boundedValues = IntStream.range(0, values.length)
+            .map(index -> clamp((int) Math.round(values[index]), minimums[index], maximums[index]))
+            .toArray();
+
+        this.x = boundedValues[0];
+        this.y = boundedValues[1];
+        this.windPower = boundedValues[2];
     }
 
     /** Keeps a value inside the supplied inclusive range. */
