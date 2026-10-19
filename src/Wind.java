@@ -56,23 +56,15 @@ public class Wind extends Position {
         int[] minimums = {-100, -100, 0};
         int[] maximums = {100, 100, 100};
         int[] boundedValues = IntStream.range(0, values.length)
-            .map(index -> clamp((int) Math.round(values[index]), minimums[index], maximums[index]))
+            .map(index -> {
+                int roundedValue = (int) Math.round(values[index]);
+                return Math.max(minimums[index], Math.min(roundedValue, maximums[index]));
+            })
             .toArray();
 
         this.x = boundedValues[0];
         this.y = boundedValues[1];
         this.windPower = boundedValues[2];
-    }
-
-    /** Keeps a value inside the supplied inclusive range. */
-    private int clamp(int value, int min, int max) {
-        if (value < min) {
-            return min;
-        }
-        if (value > max) {
-            return max;
-        }
-        return value;
     }
 
     /** Reserved for automatic wind changes during a simulation update. */
