@@ -21,7 +21,7 @@ public class App {
     private static int cellSize = 32; // The size of each cell in pixels. Cells will be square.
     private static int maxCellSize = 512;
 
-    private static int simulationFrameRate = 24;    // Controls the frame rate of the simulation, speed is dependent on the frame rate.
+    private static int simulationFrameRate = 8;    // Controls the frame rate of the simulation, speed is dependent on the frame rate.
 
     // Tree Generation Constants
     private static Forest forest;
