@@ -34,54 +34,8 @@ public class App {
     private static double chanceOfIgnition = 0.6;
 
     public static void main(String[] Args) throws Exception {
-        // final int setupFrameWidth = 500;
-        // final int setupFrameHeight = 700;
-        // simSetup(setupFrameWidth, setupFrameHeight);
-
         generateTrees();
     };
-
-    // Method by Ed, Creates a simple frame to take inputs from the user about how
-    // the simulation will appear.
-    // private static void simSetup(int setupFrameWidth, int setupFrameHeight) {
-    //     Frame setupFrame = new Frame("Simulation Setup");
-    //     setupFrame.setSize(setupFrameWidth, setupFrameHeight);
-    //     setupFrame.setLayout(null);
-    //     setupFrame.setBackground(new Color(40, 40, 40));
-    //     setupFrame.setResizable(false);
-
-    //     Label title = new Label("Simulation Setup", Label.CENTER);
-    //     title.setBounds(0, 60, setupFrameWidth, 80);
-    //     title.setBackground(new Color(80, 80, 80));
-    //     title.setFont(new Font("SansSerif", Font.BOLD, 32));
-    //     title.setForeground(new Color(255, 255, 255));
-
-    //     // Button that locks in the setup values and creates the simulation.
-    //     Button createSimulationBtn = new Button("Create");
-    //     createSimulationBtn.setBounds(100, setupFrameHeight - 120, 300, 80);
-    //     createSimulationBtn.setFont(new Font("SansSerif", Font.BOLD, 42));
-    //     createSimulationBtn.setForeground(new Color(255, 255, 255));
-    //     createSimulationBtn.setBackground(new Color(40, 40, 40));
-    //     createSimulationBtn.addActionListener(new ActionListener() {
-    //         public void actionPerformed(ActionEvent e) {
-    //             generateTrees();
-    //             setupFrame.dispose();
-    //         }
-    //     });
-
-    //     // Compile frame content
-    //     setupFrame.add(title);
-    //     setupFrame.add(createSimulationBtn);
-
-    //     setupFrame.setVisible(true);
-
-    //     setupFrame.addWindowListener(new WindowAdapter() {
-    //         public void windowClosing(WindowEvent windowEvent) {
-    //             System.exit(0);
-    //         }
-    //     });
-
-    // };
 
     // Method by Aaron, modified by Ed. Method will create the simulation frame and
     // | NEEDS WORK
