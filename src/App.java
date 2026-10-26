@@ -33,6 +33,11 @@ public class App {
     private static double chanceOfLightning = 0.2; // The chance of lightning every frame.
     private static double chanceOfIgnition = 0.6;
 
+    // Analytics
+    private static int treeAmount;
+    private static int treesBurning;
+    private static int treesBurnt;
+
     public static void main(String[] Args) throws Exception {
         generateTrees();
     };
@@ -100,6 +105,7 @@ public class App {
 
                     mainFrame.add(treePanel);
 
+                    treeAmount = forest.getAllTrees().size();
                 }
             }
         }
@@ -280,10 +286,45 @@ public class App {
             }
         });
 
+        // Analytics / Streams
+        Panel analyticsPanel = new Panel();
+        analyticsPanel.setLayout(null);
+        analyticsPanel.setSize(controlPanelWidth, 300);
+        analyticsPanel.setBackground(new Color(60, 60, 60));
+        analyticsPanel.setLocation(0, 510);
+
+        Label analyticsTitle = new Label("Analytics", Label.LEFT);
+        analyticsTitle.setBounds(20, 4, controlPanelWidth, 28);
+        analyticsTitle.setFont(new Font("SansSerif", Font.BOLD, 24));
+        analyticsTitle.setForeground(new Color(255, 255, 255));
+
+        Label treeAmountText = new Label("Amount of Trees: " + treeAmount, Label.LEFT);
+        treeAmountText.setBounds(20, 34, controlPanelWidth, 22);
+        treeAmountText.setFont(new Font("SansSerif", Font.BOLD, 18));
+        treeAmountText.setForeground(new Color(255, 255, 255));
+
+        Label treesOnFireText = new Label("Trees burning: " + treesBurning, Label.LEFT);
+        treesOnFireText.setBounds(20, 56, controlPanelWidth, 22);
+        treesOnFireText.setFont(new Font("SansSerif", Font.BOLD, 18));
+        treesOnFireText.setForeground(new Color(255, 255, 255));
+
+        Label burntTreesText = new Label("Total Trees Burnt: " + treesBurnt, Label.LEFT);
+        burntTreesText.setBounds(20, 78, controlPanelWidth, 22);
+        burntTreesText.setFont(new Font("SansSerif", Font.BOLD, 18));
+        burntTreesText.setForeground(new Color(255, 255, 255));
+
+
+        analyticsPanel.add(analyticsTitle);
+        analyticsPanel.add(treeAmountText);
+        analyticsPanel.add(treesOnFireText);
+        analyticsPanel.add(burntTreesText);
+
+
         ControlPanel.add(widthAttribute);
         ControlPanel.add(heightAttribute);
         ControlPanel.add(cellSizeAttribute);
         ControlPanel.add(refreshBtn);
+        ControlPanel.add(analyticsPanel);
 
         mainFrame.add(ControlPanel);
         mainFrame.setVisible(true);
@@ -298,6 +339,7 @@ public class App {
         Timer timer = new Timer(millisecondsPerFrame, e -> {
             wind.update();
             updateTrees();
+            collectAnalytics(analyticsPanel);
 
             int randomX = 0 + (int)(Math.random() * (gridWidth + 1));
             int randomY = 0 + (int)(Math.random() * (gridHeight + 1));
@@ -332,5 +374,15 @@ public class App {
         int maxFireIntensity = (int)(Math.random() * 100);
         Fire fire = new Fire(pos, maxFireDuration, maxFireIntensity, forestManager);
         forest.indexFire(fire);
+    }
+
+    private static void collectAnalytics(Panel analyticsPanel)
+    {
+        List<Tree> burningTreesList = forest.getAllTrees().stream()
+        .filter(t -> t.getState() == Tree.TreeState.BURNING)
+        .toList();
+        treesBurning = burningTreesList.size();
+
+        analyticsPanel.repaint();
     }
 }
