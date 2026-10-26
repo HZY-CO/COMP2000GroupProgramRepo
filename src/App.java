@@ -380,9 +380,9 @@ public class App {
     {
         List<Tree> burningTreesList = forest.getAllTrees().stream()
         .filter(t -> t.getState() == Tree.TreeState.BURNING)
-        .toList();
+        .toList(); //Use collectors here!
         treesBurning = burningTreesList.size();
 
-        analyticsPanel.repaint();
+        analyticsPanel.repaint(); //Doesn't work?
     }
 }
