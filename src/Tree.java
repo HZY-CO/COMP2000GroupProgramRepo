@@ -71,6 +71,8 @@ public class Tree extends Entity implements Tickable, Flammable {
         switch (state) {
             case GROWING:
                 age++;
+                //System.err.println("I'm growing!!");
+
                 // Tree has fully grown and will not age further
                 if (age >= maxAge) {
                     state = TreeState.FULLY_GROWN;
@@ -87,10 +89,10 @@ public class Tree extends Entity implements Tickable, Flammable {
 
             case BURNING:
                 age--;
-                System.err.println("ahh im burning!!!");
+                //System.err.println("ahh im burning!!!");
                 if (age <= 0) {
                     state = TreeState.BURNT;
-                    //setActive(false);
+                    setActive(false);
                     age = 0;
                 }
                 break;
@@ -98,7 +100,7 @@ public class Tree extends Entity implements Tickable, Flammable {
                 burntTimer -= 1;
                 if (burntTimer <= 0)
                 {
-                    System.err.println("i want to grow again!!");
+                    //System.err.println("i want to grow again!!");
                     state = TreeState.GROWING;
                     burntTimer = maxBurntDuration;
                     age = 0;
