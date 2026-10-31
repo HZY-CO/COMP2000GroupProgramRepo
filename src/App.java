@@ -8,6 +8,7 @@ https://docs.oracle.com/en/java/javase/26/docs/api/java.desktop/java/awt/package
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.Timer;
 
@@ -21,7 +22,8 @@ public class App {
     private static int cellSize = 32; // The size of each cell in pixels. Cells will be square.
     private static int maxCellSize = 512;
 
-    private static int simulationFrameRate = 8;    // Controls the frame rate of the simulation, speed is dependent on the frame rate.
+    private static int simulationFrameRate = 8; // Controls the frame rate of the simulation, speed is dependent on the
+                                                // frame rate.
 
     // Tree Generation Constants
     private static Forest forest;
@@ -37,6 +39,9 @@ public class App {
     private static int treeAmount;
     private static int treesBurning;
     private static int treesBurnt;
+
+    // Timer
+    private static Timer timer;
 
     public static void main(String[] Args) throws Exception {
         generateTrees();
@@ -54,8 +59,7 @@ public class App {
         int controlPanelWidth = 300;
         int mainFrameSizeX = gridWidth * cellSize + buffer + controlPanelWidth;
         int mainFrameSizeY = gridHeight * cellSize + buffer;
-        if(mainFrameSizeY < minSizeY)
-        {
+        if (mainFrameSizeY < minSizeY) {
             mainFrameSizeY = minSizeY;
         }
 
@@ -79,8 +83,8 @@ public class App {
                     Tree.TreeState initialState;
                     if (startsOnFire) {
                         initialState = Tree.TreeState.BURNING;
-                        int maxFireDuration = (int)(Math.random() * 100);
-                        int maxFireIntensity = (int)(Math.random() * 100);
+                        int maxFireDuration = (int) (Math.random() * 100);
+                        int maxFireIntensity = (int) (Math.random() * 100);
                         Fire fire = new Fire(treePos, maxFireDuration, maxFireIntensity, forestManager);
                         forest.indexFire(fire);
                     } else if (startAge == maxAge) {
@@ -110,7 +114,7 @@ public class App {
             }
         }
 
-        //Control Panel
+        // Control Panel
         Panel ControlPanel = new Panel();
         ControlPanel.setLayout(null);
         ControlPanel.setSize(controlPanelWidth, mainFrameSizeY);
@@ -282,6 +286,7 @@ public class App {
         refreshBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 mainFrame.dispose();
+                cleanUp();
                 generateTrees();
             }
         });
@@ -313,12 +318,10 @@ public class App {
         burntTreesText.setFont(new Font("SansSerif", Font.BOLD, 18));
         burntTreesText.setForeground(new Color(255, 255, 255));
 
-
         analyticsPanel.add(analyticsTitle);
         analyticsPanel.add(treeAmountText);
         analyticsPanel.add(treesOnFireText);
         analyticsPanel.add(burntTreesText);
-
 
         ControlPanel.add(widthAttribute);
         ControlPanel.add(heightAttribute);
@@ -335,14 +338,19 @@ public class App {
             }
         });
 
-        int millisecondsPerFrame = 1000/simulationFrameRate;
-        Timer timer = new Timer(millisecondsPerFrame, e -> {
+        int millisecondsPerFrame = 1000 / simulationFrameRate;
+        timer = new Timer(millisecondsPerFrame, e -> {
             wind.update();
             updateTrees();
-            collectAnalytics(analyticsPanel);
+            filterForBurning();
 
-            int randomX = 0 + (int)(Math.random() * (gridWidth + 1));
-            int randomY = 0 + (int)(Math.random() * (gridHeight + 1));
+            // Update Analytics Text
+            treesOnFireText.setText("Trees burning: " + treesBurning);
+            burntTreesText.setText("Total Trees Burnt: " + treesBurnt);
+
+            // Summon Lightning Logic
+            int randomX = 0 + (int) (Math.random() * (gridWidth + 1));
+            int randomY = 0 + (int) (Math.random() * (gridHeight + 1));
             Position lightningPos = new Position(randomX, randomY);
             Lightning lightning = new Lightning(lightningPos, 1, chanceOfLightning, chanceOfIgnition, 10, forest);
             lightning.tick();
@@ -359,7 +367,7 @@ public class App {
                 treeList.get(i).draw();
             }
         }
-        
+
         List<Fire> fireList = forest.getAllFires();
         for (int i = 0; i < fireList.size(); i++) {
             {
@@ -368,21 +376,29 @@ public class App {
         }
     }
 
-    public static void addFire(Position pos)
-    {
-        int maxFireDuration = (int)(Math.random() * 100);
-        int maxFireIntensity = (int)(Math.random() * 100);
+    public static void addFire(Position pos) {
+        int maxFireDuration = (int) (Math.random() * 100);
+        int maxFireIntensity = (int) (Math.random() * 100);
         Fire fire = new Fire(pos, maxFireDuration, maxFireIntensity, forestManager);
         forest.indexFire(fire);
     }
 
-    private static void collectAnalytics(Panel analyticsPanel)
-    {
+    private static void filterForBurning() {
         List<Tree> burningTreesList = forest.getAllTrees().stream()
-        .filter(t -> t.getState() == Tree.TreeState.BURNING)
-        .toList(); //Use collectors here!
+                .filter(t -> t.getState() == Tree.TreeState.BURNING)
+                .collect(Collectors.toList());
         treesBurning = burningTreesList.size();
+    }
 
-        analyticsPanel.repaint(); //Doesn't work?
+    private static void cleanUp() {
+        timer.stop();
+        treeAmount = 0;
+        treesBurning = 0;
+        treesBurnt = 0;
+    }
+
+    public static void addBurntCounter()
+    {
+        treesBurnt += 1;
     }
 }
