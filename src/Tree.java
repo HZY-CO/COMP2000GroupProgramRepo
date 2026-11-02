@@ -136,6 +136,7 @@ public class Tree extends Entity implements Tickable, Flammable {
                 break;
             case BURNT:
                 panel.setBackground(new Color(0, 0, 0));    // Black
+                App.addBurntCounter();
                 break;
         }
 
