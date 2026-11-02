@@ -104,12 +104,31 @@ public class Forest {
         return trees;
     }
 
+    public List<Cell> getEmptyCells() {
+        List<Cell> emptyCells = new ArrayList<>();
+        for (Cell cell : grid) {
+            if (cell.getTree() == null) {
+                emptyCells.add(cell);
+            }
+        }
+        return emptyCells;
+    }
+
     public List<Fire> getAllFires() {
         List<Fire> fires = new ArrayList<>();
         for (int i = 0; i < currentFires.size(); i++) {
                 fires.add(currentFires.get(i));
             }
         return fires;
+    }
+
+    public void tickFires() {
+        for (Fire fire : new ArrayList<>(currentFires)) {
+            if (fire.isActive()) {
+                fire.tick();
+            }
+        }
+        currentFires.removeIf(fire -> !fire.isActive());
     }
 
     public void indexFire(Fire fire)

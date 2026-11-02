@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import javax.swing.Timer;
 
 public class App {
+    private static final int GRID_BUFFER = 120;
+
     // Grid dimensions and cell sizing
     private static int gridWidth = 16;
     private static int gridHeight = 16;
@@ -38,10 +40,12 @@ public class App {
     private static int treeAmount;
     private static int treesBurning;
     private static int treesBurnt;
+    private static long ticksPassed;
 
     // Analytics labels
     private static Label treesOnFireText;
     private static Label burntTreesText;
+    private static Label ticksPassedText;
 
     // Simulation timer
     private static Timer timer;
@@ -51,22 +55,14 @@ public class App {
     }
 
     private static void startSimulation() {
-        List<Panel> treePanels = generateTrees();
+        List<Panel> treePanels = generateForest();
         setupWindow(treePanels);
     }
 
-    private static List<Panel> generateTrees() {
-        forest = new Forest(gridWidth, gridHeight);
-        Wind wind = new Wind(2, 5, 10);
-        forestManager = new ForestManager(forest, wind);
-        return populateTrees();
-    }
-
     private static void setupWindow(List<Panel> treePanels) {
-        int buffer = 120;
         int controlPanelWidth = 300;
-        int mainFrameSizeX = gridWidth * cellSize + buffer + controlPanelWidth;
-        int mainFrameSizeY = gridHeight * cellSize + buffer;
+        int mainFrameSizeX = gridWidth * cellSize + GRID_BUFFER + controlPanelWidth;
+        int mainFrameSizeY = gridHeight * cellSize + GRID_BUFFER;
         if (mainFrameSizeY < minSizeY) {
             mainFrameSizeY = minSizeY;
         }
@@ -96,56 +92,6 @@ public class App {
         mainFrame.setBackground(new Color(40, 40, 40));
         mainFrame.setResizable(false);
         return mainFrame;
-    }
-
-    private static List<Panel> populateTrees() {
-        List<Panel> treePanels = new ArrayList<>();
-        int buffer = 120;
-
-        // Populate the grid with trees in different states.
-        for (int x = 0; x < gridWidth; x++) {
-            for (int y = 0; y < gridHeight; y++) {
-                if (Math.random() < forestDensity) {
-                    Position treePos = new Position(x, y);
-                    int maxAge = treeMaxAge;
-                    int startAge = 1 + (int) (Math.random() * treeMaxAge);
-                    // Randomly start a small number of trees on fire.
-                    boolean startsOnFire = Math.random() < 0.01;
-
-                    Tree.TreeState initialState;
-                    if (startsOnFire) {
-                        initialState = Tree.TreeState.BURNING;
-                        int maxFireDuration = (int) (Math.random() * 100);
-                        int maxFireIntensity = (int) (Math.random() * 100);
-                        Fire fire = new Fire(treePos, maxFireDuration, maxFireIntensity, forestManager);
-                        forest.indexFire(fire);
-                    } else if (startAge == maxAge) {
-                        initialState = Tree.TreeState.FULLY_GROWN;
-                    } else {
-                        initialState = Tree.TreeState.GROWING;
-                    }
-
-                    // Create the panel used to display the tree.
-                    Panel treePanel = new Panel();
-                    treePanel.setSize(cellSize, cellSize);
-                    treePanel.setBackground(new Color(0, 255, 0));
-
-                    int treePanelX = buffer / 2 + (x * cellSize);
-                    int treePanelY = buffer / 2 + (y * cellSize);
-                    treePanel.setLocation(treePanelX, treePanelY);
-
-                    Tree tree = new Tree(treePos, maxAge, initialState, treePanel);
-                    forestManager.addTree(tree);
-
-                    tree.draw();
-
-                    treePanels.add(treePanel);
-
-                    treeAmount = forest.getAllTrees().size();
-                }
-            }
-        }
-        return treePanels;
     }
 
     private static Panel createControlPanel(
@@ -368,16 +314,23 @@ public class App {
         burntTreesText.setFont(new Font("SansSerif", Font.BOLD, 18));
         burntTreesText.setForeground(new Color(255, 255, 255));
 
+        ticksPassedText = new Label("Ticks passed: " + ticksPassed, Label.LEFT);
+        ticksPassedText.setBounds(20, 100, controlPanelWidth, 22);
+        ticksPassedText.setFont(new Font("SansSerif", Font.BOLD, 18));
+        ticksPassedText.setForeground(new Color(255, 255, 255));
+
         analyticsPanel.add(analyticsTitle);
         analyticsPanel.add(treeAmountText);
         analyticsPanel.add(treesOnFireText);
         analyticsPanel.add(burntTreesText);
+        analyticsPanel.add(ticksPassedText);
         return analyticsPanel;
     }
 
     private static void startSimulationTimer(Wind wind) {
         int millisecondsPerFrame = 1000 / simulationFrameRate;
         timer = new Timer(millisecondsPerFrame, e -> {
+            ticksPassed++;
             wind.update();
             updateTrees();
             filterForBurning();
@@ -390,6 +343,63 @@ public class App {
     private static void updateAnalyticsLabels() {
         treesOnFireText.setText("Trees burning: " + treesBurning);
         burntTreesText.setText("Total Trees Burnt: " + treesBurnt);
+        ticksPassedText.setText("Ticks passed: " + ticksPassed);
+    }
+
+    private static List<Panel> generateForest() {
+        forest = new Forest(gridWidth, gridHeight);
+        Wind wind = new Wind(2, 5, 10);
+        forestManager = new ForestManager(forest, wind);
+        return populateTrees();
+    }
+
+    private static List<Panel> populateTrees() {
+        List<Panel> treePanels = new ArrayList<>();
+
+        // Populate the grid with trees in different states.
+        for (int x = 0; x < gridWidth; x++) {
+            for (int y = 0; y < gridHeight; y++) {
+                if (Math.random() < forestDensity) {
+                    Position treePos = new Position(x, y);
+                    int maxAge = treeMaxAge;
+                    int startAge = 1 + (int) (Math.random() * treeMaxAge);
+                    // Randomly start a small number of trees on fire.
+                    boolean startsOnFire = Math.random() < 0.01;
+
+                    Tree.TreeState initialState;
+                    if (startsOnFire) {
+                        initialState = Tree.TreeState.BURNING;
+                        int maxFireDuration = (int) (Math.random() * 100);
+                        int maxFireIntensity = (int) (Math.random() * 100);
+                        Fire fire = new Fire(treePos, maxFireDuration, maxFireIntensity, forestManager);
+                        forest.indexFire(fire);
+                    } else if (startAge == maxAge) {
+                        initialState = Tree.TreeState.FULLY_GROWN;
+                    } else {
+                        initialState = Tree.TreeState.GROWING;
+                    }
+
+                    // Create the panel used to display the tree.
+                    Panel treePanel = new Panel();
+                    treePanel.setSize(cellSize, cellSize);
+                    treePanel.setBackground(new Color(0, 255, 0));
+
+                    int treePanelX = GRID_BUFFER / 2 + (x * cellSize);
+                    int treePanelY = GRID_BUFFER / 2 + (y * cellSize);
+                    treePanel.setLocation(treePanelX, treePanelY);
+
+                    Tree tree = new Tree(treePos, maxAge, initialState, treePanel);
+                    forestManager.addTree(tree);
+
+                    tree.draw();
+
+                    treePanels.add(treePanel);
+
+                    treeAmount = forest.getAllTrees().size();
+                }
+            }
+        }
+        return treePanels;
     }
 
     private static void summonLightning() {
@@ -401,16 +411,16 @@ public class App {
     }
 
     private static void updateTrees() {
-        List<Tree> treeList = forest.getAllTrees();
-        for (int i = 0; i < treeList.size(); i++) {
-            treeList.get(i).tick();
-            treeList.get(i).draw();
+        forestManager.tickTrees();
+        for (Tree tree : forest.getAllTrees()) {
+            tree.setDisplayLocation(
+                GRID_BUFFER / 2 + tree.getPosition().x * cellSize,
+                GRID_BUFFER / 2 + tree.getPosition().y * cellSize
+            );
+            tree.draw();
         }
 
-        List<Fire> fireList = forest.getAllFires();
-        for (int i = 0; i < fireList.size(); i++) {
-            fireList.get(i).tick();
-        }
+        forest.tickFires();
     }
 
     public static void addFire(Position pos) {
@@ -432,9 +442,14 @@ public class App {
         treeAmount = 0;
         treesBurning = 0;
         treesBurnt = 0;
+        ticksPassed = 0;
     }
 
     public static void addBurntCounter() {
         treesBurnt += 1;
+    }
+
+    static int getBurntTreeCount() {
+        return treesBurnt;
     }
 }

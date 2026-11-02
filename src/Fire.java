@@ -15,6 +15,14 @@ public class Fire extends Entity implements Tickable {
 
     @Override
     public void tick(){
+        if (!active) {
+            return;
+        }
+        if (duration <= 0) {
+            active = false;
+            return;
+        }
+
         spread();
 
         duration--;
