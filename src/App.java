@@ -4,35 +4,34 @@ https://docs.oracle.com/en/java/javase/26/docs/api/java.desktop/java/awt/Compone
 https://docs.oracle.com/en/java/javase/26/docs/api/java.desktop/java/awt/package-summary.html
 */
 
-//import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javax.swing.Timer;
 
 public class App {
-    private static int gridWidth = 16; // The Width of the simulation by number of cells.
-    private static int gridHeight = 16; // The Height of the simulation by number of cells.
+    // Grid dimensions and cell sizing
+    private static int gridWidth = 16;
+    private static int gridHeight = 16;
     private static int maxGridWidth = 512;
     private static int maxGridHeight = 512;
     private static int minSizeY = 800;
-
-    private static int cellSize = 32; // The size of each cell in pixels. Cells will be square.
+    private static int cellSize = 32;
     private static int maxCellSize = 512;
 
-    private static int simulationFrameRate = 8; // Controls the frame rate of the simulation, speed is dependent on the
-                                                // frame rate.
+    // Simulation settings
+    private static int simulationFrameRate = 8;
 
-    // Tree Generation Constants
+    // Forest generation
     private static Forest forest;
     private static ForestManager forestManager;
     private static double forestDensity = 0.7;
     private static int treeMaxAge = 50;
 
-    // Lightning stuff
-    private static double chanceOfLightning = 0.2; // The chance of lightning every frame.
+    // Lightning settings
+    private static double chanceOfLightning = 0.2;
     private static double chanceOfIgnition = 0.6;
 
     // Analytics
@@ -40,21 +39,30 @@ public class App {
     private static int treesBurning;
     private static int treesBurnt;
 
-    // Timer
+    // Analytics labels
+    private static Label treesOnFireText;
+    private static Label burntTreesText;
+
+    // Simulation timer
     private static Timer timer;
 
     public static void main(String[] Args) throws Exception {
-        generateTrees();
-    };
+        startSimulation();
+    }
 
-    // Method by Aaron, modified by Ed. Method will create the simulation frame and
-    // | NEEDS WORK
-    // populate the frame with randomised green squares to represent trees.
-    private static void generateTrees() {
+    private static void startSimulation() {
+        List<Panel> treePanels = generateTrees();
+        setupWindow(treePanels);
+    }
+
+    private static List<Panel> generateTrees() {
         forest = new Forest(gridWidth, gridHeight);
         Wind wind = new Wind(2, 5, 10);
         forestManager = new ForestManager(forest, wind);
+        return populateTrees();
+    }
 
+    private static void setupWindow(List<Panel> treePanels) {
         int buffer = 120;
         int controlPanelWidth = 300;
         int mainFrameSizeX = gridWidth * cellSize + buffer + controlPanelWidth;
@@ -63,21 +71,45 @@ public class App {
             mainFrameSizeY = minSizeY;
         }
 
+        Frame mainFrame = createMainFrame(mainFrameSizeX, mainFrameSizeY);
+        for (Panel treePanel : treePanels) {
+            mainFrame.add(treePanel);
+        }
+
+        Panel controlPanel = createControlPanel(mainFrame, mainFrameSizeX, mainFrameSizeY, controlPanelWidth);
+        mainFrame.add(controlPanel);
+        mainFrame.setVisible(true);
+
+        mainFrame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent windowEvent) {
+                System.exit(0);
+            }
+        });
+
+        startSimulationTimer(forestManager.getWind());
+    }
+
+    private static Frame createMainFrame(int mainFrameSizeX, int mainFrameSizeY) {
         Frame mainFrame = new Frame("Forest Fire Simulation");
         mainFrame.setSize(mainFrameSizeX, mainFrameSizeY);
         mainFrame.setLayout(null);
         mainFrame.setBackground(new Color(40, 40, 40));
         mainFrame.setResizable(false);
+        return mainFrame;
+    }
 
-        // Iterate over the 2d grid and fill out the space with
-        // Trees in different states
+    private static List<Panel> populateTrees() {
+        List<Panel> treePanels = new ArrayList<>();
+        int buffer = 120;
+
+        // Populate the grid with trees in different states.
         for (int x = 0; x < gridWidth; x++) {
             for (int y = 0; y < gridHeight; y++) {
                 if (Math.random() < forestDensity) {
                     Position treePos = new Position(x, y);
                     int maxAge = treeMaxAge;
                     int startAge = 1 + (int) (Math.random() * treeMaxAge);
-                    // In case Lightning is not complete, randomised burning Tree spawn
+                    // Randomly start a small number of trees on fire.
                     boolean startsOnFire = Math.random() < 0.01;
 
                     Tree.TreeState initialState;
@@ -93,7 +125,7 @@ public class App {
                         initialState = Tree.TreeState.GROWING;
                     }
 
-                    // Visualisation -- NEEDS WORK.
+                    // Create the panel used to display the tree.
                     Panel treePanel = new Panel();
                     treePanel.setSize(cellSize, cellSize);
                     treePanel.setBackground(new Color(0, 255, 0));
@@ -107,21 +139,31 @@ public class App {
 
                     tree.draw();
 
-                    mainFrame.add(treePanel);
+                    treePanels.add(treePanel);
 
                     treeAmount = forest.getAllTrees().size();
                 }
             }
         }
+        return treePanels;
+    }
 
-        // Control Panel
-        Panel ControlPanel = new Panel();
-        ControlPanel.setLayout(null);
-        ControlPanel.setSize(controlPanelWidth, mainFrameSizeY);
-        ControlPanel.setBackground(new Color(44, 44, 44));
-        ControlPanel.setLocation(mainFrameSizeX - controlPanelWidth, 0);
+    private static Panel createControlPanel(
+            Frame mainFrame, int mainFrameSizeX, int mainFrameSizeY, int controlPanelWidth) {
+        Panel controlPanel = new Panel();
+        controlPanel.setLayout(null);
+        controlPanel.setSize(controlPanelWidth, mainFrameSizeY);
+        controlPanel.setBackground(new Color(44, 44, 44));
+        controlPanel.setLocation(mainFrameSizeX - controlPanelWidth, 0);
+        controlPanel.add(createWidthControl(controlPanelWidth));
+        controlPanel.add(createHeightControl(controlPanelWidth));
+        controlPanel.add(createCellSizeControl(controlPanelWidth));
+        controlPanel.add(createRefreshButton(mainFrame, controlPanelWidth));
+        controlPanel.add(createAnalyticsPanel(controlPanelWidth));
+        return controlPanel;
+    }
 
-        // Adjustable Width Attribute
+    private static Panel createWidthControl(int controlPanelWidth) {
         Panel widthAttribute = new Panel();
         widthAttribute.setLayout(null);
         widthAttribute.setSize(controlPanelWidth, 100);
@@ -172,8 +214,10 @@ public class App {
         widthAttribute.add(widthIncreaseBtn);
         widthAttribute.add(widthAttributeValue);
         widthAttribute.add(widthAttributeText);
+        return widthAttribute;
+    }
 
-        // Adjustable Width Attribute
+    private static Panel createHeightControl(int controlPanelWidth) {
         Panel heightAttribute = new Panel();
         heightAttribute.setLayout(null);
         heightAttribute.setSize(controlPanelWidth, 100);
@@ -224,8 +268,10 @@ public class App {
         heightAttribute.add(heightIncreaseBtn);
         heightAttribute.add(heightAttributeValue);
         heightAttribute.add(heightAttributeText);
+        return heightAttribute;
+    }
 
-        // Adjustable Cell Size Attribute
+    private static Panel createCellSizeControl(int controlPanelWidth) {
         Panel cellSizeAttribute = new Panel();
         cellSizeAttribute.setLayout(null);
         cellSizeAttribute.setSize(controlPanelWidth, 100);
@@ -276,8 +322,10 @@ public class App {
         cellSizeAttribute.add(cellSizeIncreaseBtn);
         cellSizeAttribute.add(cellSizeAttributeValue);
         cellSizeAttribute.add(cellSizeAttributeText);
+        return cellSizeAttribute;
+    }
 
-        // Refresh Button
+    private static Button createRefreshButton(Frame mainFrame, int controlPanelWidth) {
         Button refreshBtn = new Button("Refresh");
         refreshBtn.setBounds(80, 440, controlPanelWidth - 160, 40);
         refreshBtn.setFont(new Font("SansSerif", Font.BOLD, 24));
@@ -287,11 +335,13 @@ public class App {
             public void actionPerformed(ActionEvent e) {
                 mainFrame.dispose();
                 cleanUp();
-                generateTrees();
+                startSimulation();
             }
         });
+        return refreshBtn;
+    }
 
-        // Analytics / Streams
+    private static Panel createAnalyticsPanel(int controlPanelWidth) {
         Panel analyticsPanel = new Panel();
         analyticsPanel.setLayout(null);
         analyticsPanel.setSize(controlPanelWidth, 300);
@@ -308,12 +358,12 @@ public class App {
         treeAmountText.setFont(new Font("SansSerif", Font.BOLD, 18));
         treeAmountText.setForeground(new Color(255, 255, 255));
 
-        Label treesOnFireText = new Label("Trees burning: " + treesBurning, Label.LEFT);
+        treesOnFireText = new Label("Trees burning: " + treesBurning, Label.LEFT);
         treesOnFireText.setBounds(20, 56, controlPanelWidth, 22);
         treesOnFireText.setFont(new Font("SansSerif", Font.BOLD, 18));
         treesOnFireText.setForeground(new Color(255, 255, 255));
 
-        Label burntTreesText = new Label("Total Trees Burnt: " + treesBurnt, Label.LEFT);
+        burntTreesText = new Label("Total Trees Burnt: " + treesBurnt, Label.LEFT);
         burntTreesText.setBounds(20, 78, controlPanelWidth, 22);
         burntTreesText.setFont(new Font("SansSerif", Font.BOLD, 18));
         burntTreesText.setForeground(new Color(255, 255, 255));
@@ -322,57 +372,44 @@ public class App {
         analyticsPanel.add(treeAmountText);
         analyticsPanel.add(treesOnFireText);
         analyticsPanel.add(burntTreesText);
+        return analyticsPanel;
+    }
 
-        ControlPanel.add(widthAttribute);
-        ControlPanel.add(heightAttribute);
-        ControlPanel.add(cellSizeAttribute);
-        ControlPanel.add(refreshBtn);
-        ControlPanel.add(analyticsPanel);
-
-        mainFrame.add(ControlPanel);
-        mainFrame.setVisible(true);
-
-        mainFrame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent windowEvent) {
-                System.exit(0);
-            }
-        });
-
+    private static void startSimulationTimer(Wind wind) {
         int millisecondsPerFrame = 1000 / simulationFrameRate;
         timer = new Timer(millisecondsPerFrame, e -> {
             wind.update();
             updateTrees();
             filterForBurning();
-
-            // Update Analytics Text
-            treesOnFireText.setText("Trees burning: " + treesBurning);
-            burntTreesText.setText("Total Trees Burnt: " + treesBurnt);
-
-            // Summon Lightning Logic
-            int randomX = 0 + (int) (Math.random() * (gridWidth + 1));
-            int randomY = 0 + (int) (Math.random() * (gridHeight + 1));
-            Position lightningPos = new Position(randomX, randomY);
-            Lightning lightning = new Lightning(lightningPos, 1, chanceOfLightning, chanceOfIgnition, 10, forest);
-            lightning.tick();
+            updateAnalyticsLabels();
+            summonLightning();
         });
         timer.start();
+    }
 
+    private static void updateAnalyticsLabels() {
+        treesOnFireText.setText("Trees burning: " + treesBurning);
+        burntTreesText.setText("Total Trees Burnt: " + treesBurnt);
+    }
+
+    private static void summonLightning() {
+        int randomX = 0 + (int) (Math.random() * (gridWidth + 1));
+        int randomY = 0 + (int) (Math.random() * (gridHeight + 1));
+        Position lightningPos = new Position(randomX, randomY);
+        Lightning lightning = new Lightning(lightningPos, 1, chanceOfLightning, chanceOfIgnition, 10, forest);
+        lightning.tick();
     }
 
     private static void updateTrees() {
         List<Tree> treeList = forest.getAllTrees();
         for (int i = 0; i < treeList.size(); i++) {
-            {
-                treeList.get(i).tick();
-                treeList.get(i).draw();
-            }
+            treeList.get(i).tick();
+            treeList.get(i).draw();
         }
 
         List<Fire> fireList = forest.getAllFires();
         for (int i = 0; i < fireList.size(); i++) {
-            {
-                fireList.get(i).tick();
-            }
+            fireList.get(i).tick();
         }
     }
 
@@ -397,8 +434,7 @@ public class App {
         treesBurnt = 0;
     }
 
-    public static void addBurntCounter()
-    {
+    public static void addBurntCounter() {
         treesBurnt += 1;
     }
 }
