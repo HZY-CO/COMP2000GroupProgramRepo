@@ -1,6 +1,11 @@
-.vscode
+.vscode/*
+!.vscode/
+!.vscode/settings.json
 .DS_Store
 
 /lib
+!/lib/
+/lib/*
+!/lib/junit-platform-console-standalone-1.11.4.jar
 /bin
 /tmp

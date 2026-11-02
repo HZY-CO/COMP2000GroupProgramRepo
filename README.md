@@ -13,3 +13,13 @@ ___
 
 ### Current Classes and Patterns:
 
+### Running Tests
+
+The tests use JUnit 5 without Maven. The JUnit Console Standalone JAR is included in
+`lib/` and is also added to the VS Code Java project classpath.
+
+```sh
+mkdir -p bin
+javac -cp "lib/junit-platform-console-standalone-1.11.4.jar" -d bin src/*.java tests/*.java
+java -jar lib/junit-platform-console-standalone-1.11.4.jar execute --class-path bin --scan-class-path
+```
