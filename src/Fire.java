@@ -1,4 +1,7 @@
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
 
 public class Fire extends Entity implements Tickable {
     private int duration;
@@ -6,7 +9,7 @@ public class Fire extends Entity implements Tickable {
     private boolean active = true;
     private ForestManager forestManager; // reference to the forest to access trees and other entities such as Trees, Lightning and Wind
 
-    public Fire(Position position, int duration, int intensity, ForestManager forestManager) {
+    public Fire (Position position, int duration, int intensity, ForestManager forestManager) {
         super(position); // call the constructor of the superclass Entity to set the position of the fire
         this.duration = duration;
         this.intensity = intensity;
@@ -15,6 +18,8 @@ public class Fire extends Entity implements Tickable {
 
     @Override
     public void tick(){
+        if (!active) return;  // if the fire is burnt out, do nothing
+
         spread();
 
         duration--;
@@ -33,13 +38,24 @@ public class Fire extends Entity implements Tickable {
         this.active = active;
     }
 
+    private List<Tree> getFlammableNeighbours(){
+        return forestManager.getForest().getNeighbourCells(position).stream()
+            .map(Cell::getTree) // Cell -> Tree (may be null)
+            .filter(Objects::nonNull) // no tree in this cell
+            .filter(tree -> !tree.isBurning()) // already on fire
+            .collect(Collectors.toList());
+    }
+
+    public double expectedSpread(){
+        Wind wind = forestManager.getWind();
+        return getFlammableNeighbours().stream()
+            .collect(Collectors.summingDouble(tree -> spreadChance(tree, wind)));
+    }
+
     public void spread(){
         Wind wind = forestManager.getWind();
 
-        forestManager.getForest().getNeighbourCells(position).stream()
-            .map(Cell::getTree)                                        // Cell -> Tree (may be null)
-            .filter(Objects::nonNull)                                  // no tree in this cell
-            .filter(tree -> !tree.isBurning())                         // already on fire
+        getFlammableNeighbours().stream()
             .filter(tree -> Math.random() < spreadChance(tree, wind))  // roll the dice for each tree
             .forEach(tree -> {
                 try {
