@@ -1,3 +1,6 @@
+import java.util.List;
+import java.util.ArrayList;
+
 public class Weather {
     public enum WeatherState {     
         CLEAR_SKIES,               
@@ -26,8 +29,21 @@ public class Weather {
     private final String hellWeatherName = "Hell on Earth.";
     private String currentWeatherName;
 
+    private float chanceOfClearSkies = 1f;
+    private float chanceOfThunderstorm = 0.6f;
+    private float chanceOfSnowstorm = 0.7f;
+    private float chanceOfHell = 0.1f;
+
     public Weather(WeatherState state){
         this.state = state;
+    }
+
+    public Weather(WeatherState state, int ccs, int cts, int css, int ch){
+        this.state = state;
+        this.chanceOfClearSkies = ccs;
+        this.chanceOfThunderstorm = cts;
+        this.chanceOfSnowstorm = css;
+        this.chanceOfHell = ch;
     }
 
     private void UpdateMultipliers()
@@ -58,19 +74,40 @@ public class Weather {
 
     public float ReturnLightningMultiplier()
     {
-        UpdateMultipliers();
         return currentLightningMultiplier;
     }
 
     public float ReturnIgnitionMultiplier()
     {
-        UpdateMultipliers();
         return currentIgnitionMultiplier;
     }
 
     public String ReturnWeatherName()
     {
-        UpdateMultipliers();
         return currentWeatherName;
+    }
+
+    public void CycleWeather()
+    {
+        double weatherChance = Math.random();
+
+        if(weatherChance < chanceOfClearSkies)
+        {
+            state = WeatherState.CLEAR_SKIES;
+        }
+        if(weatherChance < chanceOfThunderstorm)
+        {
+            state = WeatherState.THUNDERSTORM;
+        }
+        if(weatherChance < chanceOfSnowstorm)
+        {
+            state = WeatherState.SNOWSTORM;
+        }
+        if(weatherChance < chanceOfHell)
+        {
+            state = WeatherState.HELL;
+        }
+
+        UpdateMultipliers();
     }
 }

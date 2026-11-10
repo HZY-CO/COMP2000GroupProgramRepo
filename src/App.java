@@ -405,7 +405,7 @@ public class App {
     private static void updateAnalyticsLabels() {
         treesOnFireText.setText("Trees burning: " + treesBurning);
         burntTreesText.setText("Total Trees Burnt: " + treesBurnt);
-        burntTreesText.setText("Current Weather: " + weather.ReturnWeatherName());
+        weatherNameText.setText("Current Weather: " + weather.ReturnWeatherName());
     }
 
     private static void summonLightning() {
@@ -449,6 +449,7 @@ public class App {
         {
             weatherTimer = 0;
             weatherCycleTime = (int) (Math.random() * ((maxWeatherCycleTime - minWeatherCycleTime) + 1)) + minWeatherCycleTime;
+            weather.CycleWeather();
         }
     }
 
