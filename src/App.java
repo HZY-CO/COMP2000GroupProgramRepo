@@ -436,7 +436,8 @@ public class App {
         int randomX = 0 + (int) (Math.random() * (gridWidth + 1));
         int randomY = 0 + (int) (Math.random() * (gridHeight + 1));
         Position lightningPos = new Position(randomX, randomY);
-        Lightning lightning = new Lightning(lightningPos, 1, chanceOfLightning, chanceOfIgnition, 10, forest);
+        Lightning lightning = new Lightning(lightningPos, 1, chanceOfLightning*weather.ReturnLightningMultiplier(), 
+                                            chanceOfIgnition*weather.ReturnIgnitionMultiplier(), 10, forest);
         lightning.tick();
     }
 

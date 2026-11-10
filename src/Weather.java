@@ -17,7 +17,7 @@ public class Weather {
 
     private final float clearSkiesIgnitionMultiplier = 0f;
     private final float thunderstormIgnitionMultiplier = 2f;
-    private final float snowstormIgnitionMultiplier = 1f;
+    private final float snowstormIgnitionMultiplier = 0.5f;
     private final float hellIgnitionMultiplier = 10f;
 
     private float currentLightningMultiplier;
@@ -30,8 +30,8 @@ public class Weather {
     private String currentWeatherName;
 
     private float chanceOfClearSkies = 1f;
-    private float chanceOfThunderstorm = 0.6f;
-    private float chanceOfSnowstorm = 0.7f;
+    private float chanceOfThunderstorm = 0.4f;
+    private float chanceOfSnowstorm = 0.5f;
     private float chanceOfHell = 0.1f;
 
     public Weather(WeatherState state){
