@@ -34,6 +34,13 @@ public class App {
     private static double chanceOfLightning = 0.2;
     private static double chanceOfIgnition = 0.6;
 
+    // Weather
+    private static Weather weather = new Weather(Weather.WeatherState.CLEAR_SKIES);
+    private static int weatherTimer;
+    private static int weatherCycleTime;            // time it takes to cycle the weather in seconds.
+    private static int minWeatherCycleTime = 4;     // Min time it takes to cycle the weather in seconds.
+    private static int maxWeatherCycleTime = 10;    // Max time it takes to cycle the weather in seconds.
+
     // Analytics
     private static int treeAmount;
     private static int treesBurning;
@@ -42,6 +49,7 @@ public class App {
     // Analytics labels
     private static Label treesOnFireText;
     private static Label burntTreesText;
+    private static Label weatherNameText;
 
     // Simulation timer
     private static Timer timer;
@@ -368,10 +376,16 @@ public class App {
         burntTreesText.setFont(new Font("SansSerif", Font.BOLD, 18));
         burntTreesText.setForeground(new Color(255, 255, 255));
 
+        weatherNameText = new Label("Current Weather: " + weather.ReturnWeatherName(), Label.LEFT);
+        weatherNameText.setBounds(20, 100, controlPanelWidth, 22);
+        weatherNameText.setFont(new Font("SansSerif", Font.BOLD, 18));
+        weatherNameText.setForeground(new Color(255, 255, 255));
+
         analyticsPanel.add(analyticsTitle);
         analyticsPanel.add(treeAmountText);
         analyticsPanel.add(treesOnFireText);
         analyticsPanel.add(burntTreesText);
+        analyticsPanel.add(weatherNameText);
         return analyticsPanel;
     }
 
@@ -383,6 +397,7 @@ public class App {
             filterForBurning();
             updateAnalyticsLabels();
             summonLightning();
+            cycleWeather();
         });
         timer.start();
     }
@@ -390,6 +405,7 @@ public class App {
     private static void updateAnalyticsLabels() {
         treesOnFireText.setText("Trees burning: " + treesBurning);
         burntTreesText.setText("Total Trees Burnt: " + treesBurnt);
+        burntTreesText.setText("Current Weather: " + weather.ReturnWeatherName());
     }
 
     private static void summonLightning() {
@@ -425,6 +441,15 @@ public class App {
                 .filter(t -> t.getState() == Tree.TreeState.BURNING)
                 .collect(Collectors.toList());
         treesBurning = burningTreesList.size();
+    }
+
+    private static void cycleWeather() {        // Cycles the weather after a random range of time in seconds.
+        weatherTimer++;
+        if(weatherTimer >= simulationFrameRate * weatherCycleTime)
+        {
+            weatherTimer = 0;
+            weatherCycleTime = (int) (Math.random() * ((maxWeatherCycleTime - minWeatherCycleTime) + 1)) + minWeatherCycleTime;
+        }
     }
 
     private static void cleanUp() {
