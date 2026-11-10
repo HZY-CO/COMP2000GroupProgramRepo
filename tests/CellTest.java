@@ -5,7 +5,8 @@ import org.junit.jupiter.api.Test;
 
 class CellTest {
     @Test
-    void storesItsPositionAndOptionalTree() {
+    void 
+    storesItsPositionAndOptionalTree() {
         Position position = new Position(2, 3);
         Cell cell = new Cell(position);
         Tree tree = new Tree(position, 5, Tree.TreeState.GROWING, null);

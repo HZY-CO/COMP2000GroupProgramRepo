@@ -12,20 +12,31 @@ public class Tree extends Entity implements Tickable, Flammable {
     private TreeState state;
     private final int maxAge;
     private int age = 0;
+    private int burnTimer;
     private boolean active = true;
     private Panel panel;
-    private int maxBurntDuration = 10;
-    private int burntTimer = maxBurntDuration;
+    private static final int MAX_BURNT_DURATION = 10;
+    private int burntTimer = MAX_BURNT_DURATION;
 
     public Tree(Position position, int maxAge, TreeState state, Panel panel) {
         super(position);
         this.maxAge = maxAge;
         this.state = state;
         this.panel = panel;
+        if (state == TreeState.BURNING) {
+            burnTimer = maxAge;
+        }
+        if (state == TreeState.FULLY_GROWN) {
+            age = maxAge;
+        }
     }
 
     public TreeState getState() {
         return state;
+    }
+
+    public int getAge() {
+        return age;
     }
 
     // Flammable interface methods
@@ -43,6 +54,7 @@ public class Tree extends Entity implements Tickable, Flammable {
     public void ignite() {
         if (state == TreeState.FULLY_GROWN || state == TreeState.GROWING) {
             state = TreeState.BURNING;
+            burnTimer = maxAge;
             App.addFire(position);
         }
     }
@@ -50,9 +62,14 @@ public class Tree extends Entity implements Tickable, Flammable {
     @Override 
     public void burnOut() {
         if (state == TreeState.BURNING) {
-            state = TreeState.BURNT;
-            setActive(false);
+            becomeBurnt();
         }
+    }
+
+    private void becomeBurnt() {
+        state = TreeState.BURNT;
+        setActive(false);
+        App.addBurntCounter();
     }
 
     // Tickable interface method
@@ -66,8 +83,26 @@ public class Tree extends Entity implements Tickable, Flammable {
         this.active = active;
     }
 
+    boolean isReadyForReplacement() {
+        return state == TreeState.BURNT && burntTimer <= 0;
+    }
+
+    Tree createReplacement(Position newPosition) {
+        return new Tree(newPosition, maxAge, TreeState.GROWING, panel);
+    }
+
+    public void setDisplayLocation(int x, int y) {
+        if (panel != null) {
+            panel.setLocation(x, y);
+        }
+    }
+
     @Override
     public void tick() {
+        tick(true);
+    }
+
+    void tick(boolean firesOut) {
         switch (state) {
             case GROWING:
                 age++;
@@ -88,22 +123,14 @@ public class Tree extends Entity implements Tickable, Flammable {
                 break;
 
             case BURNING:
-                age--;
-                //System.err.println("ahh im burning!!!");
-                if (age <= 0) {
-                    state = TreeState.BURNT;
-                    setActive(false);
-                    age = 0;
+                burnTimer--;
+                if (burnTimer <= 0) {
+                    becomeBurnt();
                 }
                 break;
             case BURNT:
-                burntTimer -= 1;
-                if (burntTimer <= 0)
-                {
-                    //System.err.println("i want to grow again!!");
-                    state = TreeState.GROWING;
-                    burntTimer = maxBurntDuration;
-                    age = 0;
+                if (firesOut) {
+                    burntTimer = Math.max(0, burntTimer - 1);
                 }
                 break;
         }   
@@ -125,7 +152,7 @@ public class Tree extends Entity implements Tickable, Flammable {
                 panel.setBackground(new Color(0, g, 0));
                 break;
             case BURNING:
-                float r = ((float) age / maxAge);
+                float r = ((float) burnTimer / maxAge);
                 if (r <= 0) {
                     r = 0;
                 }
@@ -136,12 +163,7 @@ public class Tree extends Entity implements Tickable, Flammable {
                 break;
             case BURNT:
                 panel.setBackground(new Color(0, 0, 0));    // Black
-                App.addBurntCounter();
                 break;
         }
-
-        //p.fillRect(position.x * cellSize, position.y * cellSize, cellSize, cellSize); 
-
-
     }
 }
