@@ -1,8 +1,13 @@
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ForestManager {
+    private static final int MAX_REPLACEMENT_DELAY = 50;
+
     private final Forest forest;
+    private final Map<Tree, Integer> replacementDelays = new IdentityHashMap<>();
     private Wind wind;
 
     public ForestManager(Forest forest, Wind wind) {
@@ -32,24 +37,37 @@ public class ForestManager {
         for (Tree tree : forest.getAllTrees()) {
             tree.tick(firesOut);
             if (tree.isReadyForReplacement()) {
-                replaceBurntTree(tree);
+                Integer delay = replacementDelays.get(tree);
+                if (delay == null) {
+                    replacementDelays.put(
+                        tree,
+                        1 + (int) (Math.random() * MAX_REPLACEMENT_DELAY)
+                    );
+                } else if (delay == 1) {
+                    if (replaceBurntTree(tree)) {
+                        replacementDelays.remove(tree);
+                    }
+                } else {
+                    replacementDelays.put(tree, delay - 1);
+                }
             }
         }
     }
 
-    private void replaceBurntTree(Tree burntTree) {
+    private boolean replaceBurntTree(Tree burntTree) {
         List<Cell> availableCells = new ArrayList<>(forest.getEmptyCells());
         Cell burntCell = forest.getCellfromPosition(burntTree.getPosition());
         if (burntCell.getTree() == burntTree) {
             availableCells.add(burntCell);
         }
         if (availableCells.isEmpty()) {
-            return;
+            return false;
         }
 
         Cell destination = availableCells.get((int) (Math.random() * availableCells.size()));
         burntCell.setTree(null);
         destination.setTree(burntTree.createReplacement(destination.getPosition()));
+        return true;
     }
 
     public void addFire(Fire fire) {

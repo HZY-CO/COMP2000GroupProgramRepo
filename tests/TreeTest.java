@@ -66,6 +66,11 @@ public class TreeTest {
             forestManager.tickTrees();
         }
 
+        assertSame(burntTree, forest.getCellfromPosition(new Position(1, 0)).getTree());
+        for (int i = 0; i < 50 && forest.getAllTrees().contains(burntTree); i++) {
+            forestManager.tickTrees();
+        }
+
         Tree replacement = forest.getAllTrees().get(0);
         assertNotSame(burntTree, replacement);
         assertEquals(Tree.TreeState.GROWING, replacement.getState());
@@ -112,6 +117,10 @@ public class TreeTest {
         assertSame(burntTree, forest.getCellfromPosition(new Position(0, 0)).getTree());
 
         forestManager.tickTrees();
+        assertSame(burntTree, forest.getCellfromPosition(new Position(0, 0)).getTree());
+        for (int i = 0; i < 50 && forest.getAllTrees().contains(burntTree); i++) {
+            forestManager.tickTrees();
+        }
         assertFalse(forest.getAllTrees().contains(burntTree));
         assertEquals(1, forest.getAllTrees().size());
         assertEquals(Tree.TreeState.GROWING, forest.getAllTrees().get(0).getState());

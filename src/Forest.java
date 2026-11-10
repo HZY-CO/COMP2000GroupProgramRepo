@@ -49,7 +49,7 @@ public class Forest {
         }
         if (inForestBounds(position.x, position.y)) {
             //System.err.println("reached");
-            for (int i = 0; i < grid.size(); i++) {
+            for   (int i = 0; i < grid.size(); i++) {
                 Cell cell = grid.get(i);
                 if(cell.getPosition().x == position.x && cell.getPosition().y == position.y)
                 {

@@ -41,8 +41,10 @@ public class App {
     private static int treesBurning;
     private static int treesBurnt;
     private static long ticksPassed;
+    private static final List<PendingTreeSpawn> pendingTreeSpawns = new ArrayList<>();
 
     // Analytics labels
+    private static Label treeAmountText;
     private static Label treesOnFireText;
     private static Label burntTreesText;
     private static Label ticksPassedText;
@@ -299,7 +301,7 @@ public class App {
         analyticsTitle.setFont(new Font("SansSerif", Font.BOLD, 24));
         analyticsTitle.setForeground(new Color(255, 255, 255));
 
-        Label treeAmountText = new Label("Amount of Trees: " + treeAmount, Label.LEFT);
+        treeAmountText = new Label("Amount of Trees: " + treeAmount, Label.LEFT);
         treeAmountText.setBounds(20, 34, controlPanelWidth, 22);
         treeAmountText.setFont(new Font("SansSerif", Font.BOLD, 18));
         treeAmountText.setForeground(new Color(255, 255, 255));
@@ -341,6 +343,8 @@ public class App {
     }
 
     private static void updateAnalyticsLabels() {
+        treeAmount = forest.getAllTrees().size();
+        treeAmountText.setText("Amount of Trees: " + treeAmount);
         treesOnFireText.setText("Trees burning: " + treesBurning);
         burntTreesText.setText("Total Trees Burnt: " + treesBurnt);
         ticksPassedText.setText("Ticks passed: " + ticksPassed);
@@ -355,51 +359,61 @@ public class App {
 
     private static List<Panel> populateTrees() {
         List<Panel> treePanels = new ArrayList<>();
+        pendingTreeSpawns.clear();
+        treeAmount = 0;
 
-        // Populate the grid with trees in different states.
         for (int x = 0; x < gridWidth; x++) {
             for (int y = 0; y < gridHeight; y++) {
                 if (Math.random() < forestDensity) {
                     Position treePos = new Position(x, y);
-                    int maxAge = treeMaxAge;
-                    int startAge = 1 + (int) (Math.random() * treeMaxAge);
-                    // Randomly start a small number of trees on fire.
-                    boolean startsOnFire = Math.random() < 0.01;
-
-                    Tree.TreeState initialState;
-                    if (startsOnFire) {
-                        initialState = Tree.TreeState.BURNING;
-                        int maxFireDuration = (int) (Math.random() * 100);
-                        int maxFireIntensity = (int) (Math.random() * 100);
-                        Fire fire = new Fire(treePos, maxFireDuration, maxFireIntensity, forestManager);
-                        forest.indexFire(fire);
-                    } else if (startAge == maxAge) {
-                        initialState = Tree.TreeState.FULLY_GROWN;
-                    } else {
-                        initialState = Tree.TreeState.GROWING;
-                    }
-
-                    // Create the panel used to display the tree.
                     Panel treePanel = new Panel();
                     treePanel.setSize(cellSize, cellSize);
-                    treePanel.setBackground(new Color(0, 255, 0));
+                    treePanel.setBackground(new Color(40, 40, 40));
 
                     int treePanelX = GRID_BUFFER / 2 + (x * cellSize);
                     int treePanelY = GRID_BUFFER / 2 + (y * cellSize);
                     treePanel.setLocation(treePanelX, treePanelY);
 
-                    Tree tree = new Tree(treePos, maxAge, initialState, treePanel);
-                    forestManager.addTree(tree);
-
-                    tree.draw();
-
+                    long spawnTick = 1 + (int) (Math.random() * treeMaxAge);
+                    pendingTreeSpawns.add(new PendingTreeSpawn(treePos, treePanel, spawnTick));
                     treePanels.add(treePanel);
-
-                    treeAmount = forest.getAllTrees().size();
                 }
             }
         }
         return treePanels;
+    }
+
+    private static void spawnDueTrees() {
+        for (PendingTreeSpawn pendingSpawn : new ArrayList<>(pendingTreeSpawns)) {
+            if (pendingSpawn.spawnTick <= ticksPassed) {
+                spawnTree(pendingSpawn);
+                pendingTreeSpawns.remove(pendingSpawn);
+            }
+        }
+    }
+
+    private static void spawnTree(PendingTreeSpawn pendingSpawn) {
+        Tree.TreeState initialState;
+        if (Math.random() < 0.01) {
+            initialState = Tree.TreeState.BURNING;
+            int maxFireDuration = (int) (Math.random() * 100);
+            int maxFireIntensity = (int) (Math.random() * 100);
+            Fire fire = new Fire(
+                pendingSpawn.position,
+                maxFireDuration,
+                maxFireIntensity,
+                forestManager
+            );
+            forest.indexFire(fire);
+        } else if (1 + (int) (Math.random() * treeMaxAge) == treeMaxAge) {
+            initialState = Tree.TreeState.FULLY_GROWN;
+        } else {
+            initialState = Tree.TreeState.GROWING;
+        }
+
+        Tree tree = new Tree(pendingSpawn.position, treeMaxAge, initialState, pendingSpawn.panel);
+        forestManager.addTree(tree);
+        tree.draw();
     }
 
     private static void summonLightning() {
@@ -412,6 +426,7 @@ public class App {
 
     private static void updateTrees() {
         forestManager.tickTrees();
+        spawnDueTrees();
         for (Tree tree : forest.getAllTrees()) {
             tree.setDisplayLocation(
                 GRID_BUFFER / 2 + tree.getPosition().x * cellSize,
@@ -443,6 +458,7 @@ public class App {
         treesBurning = 0;
         treesBurnt = 0;
         ticksPassed = 0;
+        pendingTreeSpawns.clear();
     }
 
     public static void addBurntCounter() {
@@ -451,5 +467,17 @@ public class App {
 
     static int getBurntTreeCount() {
         return treesBurnt;
+    }
+
+    private static class PendingTreeSpawn {
+        private final Position position;
+        private final Panel panel;
+        private final long spawnTick;
+
+        private PendingTreeSpawn(Position position, Panel panel, long spawnTick) {
+            this.position = position;
+            this.panel = panel;
+            this.spawnTick = spawnTick;
+        }
     }
 }
