@@ -1,27 +1,30 @@
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class Fire extends Entity implements Tickable {
     private int duration;
     private int intensity; // Out of 100
     private boolean active = true;
-    private ForestManager forestManager; // reference to the forest to access trees and other entities such as Trees, Lightning and Wind
+    private ForestManager forestManager;
+    private Spread strategy;   // the swappable spread rule
 
+    // Keeps App and Tree compiling: defaults to the wind rule
     public Fire(Position position, int duration, int intensity, ForestManager forestManager) {
-        super(position); // call the constructor of the superclass Entity to set the position of the fire
+        this(position, duration, intensity, forestManager, new WindSpread());
+    }
+
+    public Fire(Position position, int duration, int intensity, ForestManager forestManager, Spread strategy) {
+        super(position);
         this.duration = duration;
         this.intensity = intensity;
         this.forestManager = forestManager;
+        this.strategy = strategy;
     }
 
     @Override
     public void tick(){
-        if (!active) {
-            return;
-        }
-        if (duration <= 0) {
-            active = false;
-            return;
-        }
+        if (!active) return;   // a burnt-out fire does nothing
 
         spread();
 
@@ -41,14 +44,27 @@ public class Fire extends Entity implements Tickable {
         this.active = active;
     }
 
+    // Collector 1: toList() gathers neighbouring trees that could still catch fire
+    private List<Tree> getFlammableNeighbours() {
+        return forestManager.getForest().getNeighbourCells(position).stream()
+            .map(Cell::getTree)                // Cell -> Tree (may be null)
+            .filter(Objects::nonNull)          // no tree in this cell
+            .filter(tree -> !tree.isBurning()) // already on fire
+            .collect(Collectors.toList());
+    }
+
+    // Collector 2: summingDouble() adds up each tree's spread chance
+    public double expectedSpread() {
+        Wind wind = forestManager.getWind();
+        return getFlammableNeighbours().stream()
+            .collect(Collectors.summingDouble(tree -> strategy.chance(this, tree, wind)));
+    }
+
     public void spread(){
         Wind wind = forestManager.getWind();
 
-        forestManager.getForest().getNeighbourCells(position).stream()
-            .map(Cell::getTree)                                        // Cell -> Tree (may be null)
-            .filter(Objects::nonNull)                                  // no tree in this cell
-            .filter(tree -> !tree.isBurning())                         // already on fire
-            .filter(tree -> Math.random() < spreadChance(tree, wind))  // roll the dice for each tree
+        getFlammableNeighbours().stream()
+            .filter(tree -> Math.random() < strategy.chance(this, tree, wind))  // roll the dice for each tree
             .forEach(tree -> {
                 try {
                     tree.ignite();
@@ -58,43 +74,7 @@ public class Fire extends Entity implements Tickable {
             });
     }
 
-    private double spreadChance(Tree tree, Wind wind){
-        double base = intensity/100.0;
-        double windBoost = windInfluence(wind, tree);
-        return Math.min(base + windBoost, 1.0); // ensures that the chance does not exceed 100%
-    }
-
-    private double windInfluence(Wind wind, Tree tree){
-        Position treePos = tree.getPosition();
-        int dx = treePos.x - position.x;
-        int dy = treePos.y - position.y;
-
-        if(dx == 0 && dy == 0){
-            return 0; //same position, no influence
-        }
-
-        double length = Math.sqrt(dx*dx + dy*dy);
-        double dirX = dx/length;
-        double dirY = dy/length;
-
-        double windX = wind.x;
-        double windY = wind.y;
-        double windLength = Math.sqrt(windX*windX + windY*windY);
-
-        if (windLength == 0){
-            return 0; // no wind, no influence
-        }
-
-        windX /= windLength;
-        windY /= windLength;
-
-        double allignment = (dirX * windX) + (dirY * windY);
-        double normalisedPower = wind.getWindPower() / 100.0;
-
-        return Math.max(allignment, 0) * normalisedPower * 0.3; // the 0.3 factor is a scaling factor to reduce the influence of wind on fire spread
-    }
-
     public int fireIntensity(){
-        return intensity; // returns the intensity of the fire, which can be used to determine how quickly it spreads or how much damage it does to trees
+        return intensity;   // must stay public: the strategies call it
     }
 }
