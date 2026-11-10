@@ -26,6 +26,11 @@ public class Fire extends Entity implements Tickable {
     public void tick(){
         if (!active) return;   // a burnt-out fire does nothing
 
+        if (duration <= 0) { // expired before it had a chance to spread
+            active = false;
+            return;
+        }
+
         spread();
 
         duration--;
