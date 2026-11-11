@@ -378,10 +378,31 @@ public class App {
         pendingTreeSpawns.clear();
         treeAmount = 0;
 
+        // Split the grid into biome regions before placing anything
+        generateBiomes();
+
         for (int x = 0; x < gridWidth; x++) {
             for (int y = 0; y < gridHeight; y++) {
-                if (Math.random() < forestDensity) {
+                Cell cell = forest.getCellfromPosition(new Position(x, y));
+                Biome biome = cell.getBiome();
+
+                // Some cells are rock, these never get a tree so fire can't spread onto them
+                if (Math.random() < biome.getRockChance()) {
+                    cell.setRock(true);
+
+                    Panel rockPanel = new Panel();
+                    rockPanel.setSize(cellSize, cellSize);
+                    rockPanel.setBackground(new Color(120, 120, 120));   // Grey
+                    rockPanel.setLocation(GRID_BUFFER / 2 + (x * cellSize), GRID_BUFFER / 2 + (y * cellSize));
+
+                    treePanels.add(rockPanel);
+                    continue;
+                }
+
+                if (Math.random() < biome.getDensity()) {
                     Position treePos = new Position(x, y);
+                    // The biome decides which species grows here
+                    Species species = biome.pickSpecies();
                     Panel treePanel = new Panel();
                     treePanel.setSize(cellSize, cellSize);
                     treePanel.setBackground(new Color(40, 40, 40));
@@ -391,12 +412,52 @@ public class App {
                     treePanel.setLocation(treePanelX, treePanelY);
 
                     long spawnTick = 1 + (int) (Math.random() * treeMaxAge);
-                    pendingTreeSpawns.add(new PendingTreeSpawn(treePos, treePanel, spawnTick));
+                    pendingTreeSpawns.add(new PendingTreeSpawn(treePos, treePanel, spawnTick, species));
                     treePanels.add(treePanel);
                 }
             }
         }
         return treePanels;
+    }
+
+    /**
+     * Splits the grid into random biome regions.
+     * A few random "seed" points are placed on the grid, each with a biome,
+     * then every cell takes the biome of the seed closest to it.
+     * This makes natural looking patches instead of a random mess.
+     */
+    private static void generateBiomes() {
+        int seedCount = Math.max(3, (gridWidth * gridHeight) / 150);
+        Biome[] biomes = Biome.values();
+
+        List<Position> seedPositions = new ArrayList<>();
+        List<Biome> seedBiomes = new ArrayList<>();
+        for (int i = 0; i < seedCount; i++) {
+            seedPositions.add(new Position(
+                    (int) (Math.random() * gridWidth),
+                    (int) (Math.random() * gridHeight)));
+            seedBiomes.add(biomes[(int) (Math.random() * biomes.length)]);
+        }
+
+        for (int x = 0; x < gridWidth; x++) {
+            for (int y = 0; y < gridHeight; y++) {
+                int closestSeed = 0;
+                int closestDistance = Integer.MAX_VALUE;
+
+                for (int i = 0; i < seedPositions.size(); i++) {
+                    int dx = seedPositions.get(i).x - x;
+                    int dy = seedPositions.get(i).y - y;
+                    int distance = dx * dx + dy * dy;
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        closestSeed = i;
+                    }
+                }
+
+                Cell cell = forest.getCellfromPosition(new Position(x, y));
+                cell.setBiome(seedBiomes.get(closestSeed));
+            }
+        }
     }
 
     private static void spawnDueTrees() {
@@ -427,7 +488,8 @@ public class App {
             initialState = Tree.TreeState.GROWING;
         }
 
-        Tree tree = new Tree(pendingSpawn.position, treeMaxAge, initialState, pendingSpawn.panel);
+        Species species = pendingSpawn.species;
+        Tree tree = new Tree(pendingSpawn.position, species.getMaxAge(), initialState, pendingSpawn.panel, species);
         forestManager.addTree(tree);
         tree.draw();
     }
@@ -500,11 +562,13 @@ public class App {
         private final Position position;
         private final Panel panel;
         private final long spawnTick;
+        private final Species species;
 
-        private PendingTreeSpawn(Position position, Panel panel, long spawnTick) {
+        private PendingTreeSpawn(Position position, Panel panel, long spawnTick, Species species) {
             this.position = position;
             this.panel = panel;
             this.spawnTick = spawnTick;
+            this.species = species;
         }
     }
 }
