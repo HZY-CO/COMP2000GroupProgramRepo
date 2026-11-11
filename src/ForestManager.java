@@ -66,7 +66,9 @@ public class ForestManager {
 
         Cell destination = availableCells.get((int) (Math.random() * availableCells.size()));
         burntCell.setTree(null);
-        destination.setTree(burntTree.createReplacement(destination.getPosition()));
+        // The biome of the new spot decides which species grows back
+        Species newSpecies = destination.getBiome().pickSpecies();
+        destination.setTree(burntTree.createReplacement(destination.getPosition(), newSpecies));
         return true;
     }
 
