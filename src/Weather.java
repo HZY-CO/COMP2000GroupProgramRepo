@@ -69,6 +69,11 @@ public class Weather {
         }
     }
 
+    public WeatherState getState()
+    {
+        return state;
+    }
+
     public float ReturnLightningMultiplier()
     {
         return currentLightningMultiplier;

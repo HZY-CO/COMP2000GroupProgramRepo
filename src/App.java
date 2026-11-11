@@ -103,9 +103,27 @@ public class App {
                 }
                 updateAnimalDisplay(animal, animalPanel);
             }
+            updateLightningDisplay(mainFrame);
             controlPanel.updateAnalytics(simulation);
         });
         timer.start();
+    }
+
+    
+    private static void updateLightningDisplay(Frame mainFrame) {
+        Panel[] lightningPanels = {
+            simulation.getLightningPanel(),
+            simulation.getLightningBoltPanel()
+        };
+        for (Panel lightningPanel : lightningPanels) {
+            if (lightningPanel.getParent() == null) {
+                mainFrame.add(lightningPanel);
+            }
+            if (simulation.isLightningVisible()) {
+                mainFrame.setComponentZOrder(lightningPanel, 0);
+            }
+            lightningPanel.setVisible(simulation.isLightningVisible());
+        }
     }
 
     private static void updateAnimalDisplay(Animal animal, Panel animalPanel) {
