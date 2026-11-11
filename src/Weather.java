@@ -1,6 +1,3 @@
-import java.util.List;
-import java.util.ArrayList;
-
 public class Weather {
     public enum WeatherState {     
         CLEAR_SKIES,               
