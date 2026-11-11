@@ -1,5 +1,5 @@
 public abstract class Entity {
-    protected final Position position;
+    protected Position position;
 
     public Entity(Position position) {
         this.position = position;
