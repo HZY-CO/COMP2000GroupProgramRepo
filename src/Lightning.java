@@ -5,8 +5,8 @@ import java.util.List;
 public class Lightning extends Entity {
 
     private int duration;
-    private double strikeChance; // Determines whether a strike occurs(not every tick will have a strike)
-    private double igniteChance; // Determines whether a strike sets a tree on fire
+    private double strikeChance; // (not every tick will have a strike)
+    private double igniteChance; 
     private boolean hasStruck;
     private boolean active = true;
     private Forest forest;
@@ -14,6 +14,7 @@ public class Lightning extends Entity {
     private int cooldownTicks = 0;
     private int cooldownDuration;
     private int totalStrikes = 0;
+    private Position lastStrike; 
 
     public Lightning(Position position, int duration, double strikeChance, double igniteChance, int cooldownDuration,
             Forest forest) {
@@ -48,6 +49,11 @@ public class Lightning extends Entity {
                 totalStrikes++;
                 cooldownTicks = cooldownDuration;
 
+               
+                lastStrike = new Position(
+                        (int) (Math.random() * forest.getWidth()),
+                        (int) (Math.random() * forest.getHeight()));
+
                 List<Tree> trees = forest.getAllTrees();
                 for (Tree tree : trees) {
                     strikeTree(tree);
@@ -62,7 +68,7 @@ public class Lightning extends Entity {
 
     private void strikeTree(Tree tree) {
         Position treePos = tree.getPosition();
-        if (treePos.x == position.x && treePos.y == position.y) {
+        if (treePos.x == lastStrike.x && treePos.y == lastStrike.y) {
             if (Math.random() < igniteChance) {
                 tree.ignite();
             }
@@ -83,6 +89,29 @@ public class Lightning extends Entity {
 
     public int getTotalStrikes() {
         return totalStrikes;
+    }
+
+    public boolean hasStruck() {
+        return hasStruck;
+    }
+
+    public Position getLastStrike() {
+        return lastStrike;
+    }
+
+    
+    public void setStrikeChance(double strikeChance) {
+        if (strikeChance < 0.0 || strikeChance > 1.0) {
+            throw new IllegalArgumentException("strikeChance must be between 0.0 & 1.0");
+        }
+        this.strikeChance = strikeChance;
+    }
+
+    public void setIgniteChance(double igniteChance) {
+        if (igniteChance < 0.0 || igniteChance > 1.0) {
+            throw new IllegalArgumentException("ignite Chance must be between 0.0 & 1.0");
+        }
+        this.igniteChance = igniteChance;
     }
 
 }
