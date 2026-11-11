@@ -107,7 +107,8 @@ public class Forest {
     public List<Cell> getEmptyCells() {
         List<Cell> emptyCells = new ArrayList<>();
         for (Cell cell : grid) {
-            if (cell.getTree() == null) {
+            // Rock cells aren't empty ground, nothing can grow on them
+            if (cell.getTree() == null && !cell.isRock()) {
                 emptyCells.add(cell);
             }
         }
