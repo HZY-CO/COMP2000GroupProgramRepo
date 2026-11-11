@@ -1,10 +1,5 @@
 import java.awt.Color;
 
-/**
- * Represents the different species of plants that can grow in the forest.
- * Each species grows and burns at a different speed and has its own colour.
- */
-
 public enum Species {
     GRASS(10, new Color(170, 220, 60)),   // grows and burns fast
     SHRUB(25, new Color(60, 160, 60)),    // acts ads a middle ground

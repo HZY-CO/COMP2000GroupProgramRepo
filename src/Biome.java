@@ -1,13 +1,8 @@
-/**
- * Represents the different biomes in the forest.
- * A biome decides how dense the plants are, which species grow there
- * and how much of the ground is rock.
- */
 
 public enum Biome {
     GRASSLAND(0.8, 0.75, 0.20, 0.05, 0.02),
     WOODLAND (0.7, 0.10, 0.30, 0.60, 0.03),
-    ROCKY    (0.4, 0.40, 0.50, 0.10, 0.40);
+    ROCKY    (0.4, 0.40, 0.50, 0.10, 0.20);
 
     private final double density;
     private final double grassChance;

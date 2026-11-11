@@ -9,10 +9,14 @@ public class Simulation {
     private static final int MAX_ANIMAL_COUNT = 10;
     private static final double FOREST_DENSITY = 0.7;
     private static final int TREE_MAX_AGE = 50;
+    private static final int LIGHTNING_COOLDOWN = 10;
+    private static final int LIGHTNING_FLASH_TICKS = 6;   
     private static final double CHANCE_OF_LIGHTNING = 0.2;
     private static final double CHANCE_OF_IGNITION = 0.6;
     private static final int MIN_WEATHER_CYCLE_TIME = 4;
     private static final int MAX_WEATHER_CYCLE_TIME = 10;
+    private static final int MIN_CLEAR_SKIES_CYCLE_TIME = 1;  
+    private static final int MAX_CLEAR_SKIES_CYCLE_TIME = 3;
     private static final Collector<Animal, EnumMap<AnimalStatus, Integer>, EnumMap<AnimalStatus, Integer>>
         ANIMAL_STATUS_COLLECTOR = Collector.of(
             () -> {
@@ -65,6 +69,10 @@ public class Simulation {
     private final List<Panel> treePanels = new ArrayList<>();
     private final List<PendingTreeSpawn> pendingTreeSpawns = new ArrayList<>();
     private final Weather weather = new Weather(Weather.WeatherState.CLEAR_SKIES);
+    private final Lightning lightning;
+    private final Panel lightningPanel = new Panel();      
+    private final Panel lightningBoltPanel = new Panel();  
+    private int lightningFlashTimer;
 
     private int weatherTimer;
     private int weatherCycleTime;
@@ -91,6 +99,18 @@ public class Simulation {
         forestManager = new ForestManager(forest, new Wind(2, 5, 10));
         createAnimals();
         createTreeSpawns();
+
+       
+        lightning = new Lightning(
+            new Position(0, 0),
+            Integer.MAX_VALUE,
+            0.0,
+            0.0,
+            LIGHTNING_COOLDOWN,
+            forest
+        );
+        lightningPanel.setBackground(new Color(255, 255, 255));       // white
+        lightningBoltPanel.setBackground(new Color(255, 255, 255));   
         updateAnalytics();
     }
 
@@ -202,12 +222,7 @@ public class Simulation {
         }
     }
 
-    /**
-     * Splits the grid into random biome regions.
-     * A few random "seed" points are placed on the grid, each with a biome,
-     * then every cell takes the biome of the seed closest to it.
-     * This makes natural looking patches instead of a random mess.
-     */
+   
     private void generateBiomes() {
         int seedCount = Math.max(3, (gridWidth * gridHeight) / 150);
         Biome[] biomes = Biome.values();
@@ -266,18 +281,9 @@ public class Simulation {
     }
 
     private void spawnTree(PendingTreeSpawn pendingSpawn) {
+        
         Tree.TreeState initialState;
-        if (Math.random() < 0.01) {
-            initialState = Tree.TreeState.BURNING;
-            int fireDuration = (int) (Math.random() * 100);
-            int fireIntensity = (int) (Math.random() * 100);
-            forest.indexFire(new Fire(
-                pendingSpawn.position,
-                fireDuration,
-                fireIntensity,
-                forestManager
-            ));
-        } else if (1 + (int) (Math.random() * TREE_MAX_AGE) == TREE_MAX_AGE) {
+        if (1 + (int) (Math.random() * TREE_MAX_AGE) == TREE_MAX_AGE) {
             initialState = Tree.TreeState.FULLY_GROWN;
         } else {
             initialState = Tree.TreeState.GROWING;
@@ -311,33 +317,59 @@ public class Simulation {
     }
 
     private void summonLightning() {
-        Position lightningPosition = new Position(
-            (int) (Math.random() * (gridWidth + 1)),
-            (int) (Math.random() * (gridHeight + 1))
-        );
-        double strikeChance = clampProbability(
+        
+        lightning.setStrikeChance(clampProbability(
             CHANCE_OF_LIGHTNING * weather.ReturnLightningMultiplier()
-        );
-        double ignitionChance = clampProbability(
+        ));
+        lightning.setIgniteChance(clampProbability(
             CHANCE_OF_IGNITION * weather.ReturnIgnitionMultiplier()
-        );
-        new Lightning(
-            lightningPosition,
-            1,
-            strikeChance,
-            ignitionChance,
-            10,
-            forest
-        ).tick();
+        ));
+        lightning.tick();
+
+        if (lightning.hasStruck()) {
+            
+            Position strike = lightning.getLastStrike();
+            int strikeX = gridBuffer / 2 + strike.x * cellSize;
+            int strikeY = gridBuffer / 2 + strike.y * cellSize;
+
+            
+            lightningPanel.setBounds(strikeX, strikeY, cellSize, cellSize);
+
+            
+            int boltWidth = Math.max(2, cellSize / 4);
+            lightningBoltPanel.setBounds(
+                strikeX + (cellSize - boltWidth) / 2,
+                gridBuffer / 2,
+                boltWidth,
+                strikeY - gridBuffer / 2 + cellSize
+            );
+            lightningFlashTimer = LIGHTNING_FLASH_TICKS;
+        } else if (lightningFlashTimer > 0) {
+            lightningFlashTimer--;
+        }
+
+        
+        if (lightningFlashTimer % 2 == 0) {
+            lightningPanel.setBackground(new Color(255, 255, 255));
+        } else {
+            lightningPanel.setBackground(new Color(170, 210, 255));   
+        }
     }
 
     private void cycleWeather() {
         weatherTimer++;
         if (weatherTimer >= simulationFrameRate * weatherCycleTime) {
             weatherTimer = 0;
-            weatherCycleTime = MIN_WEATHER_CYCLE_TIME
-                + (int) (Math.random() * (MAX_WEATHER_CYCLE_TIME - MIN_WEATHER_CYCLE_TIME + 1));
             weather.CycleWeather();
+
+            
+            if (weather.getState() == Weather.WeatherState.CLEAR_SKIES) {
+                weatherCycleTime = MIN_CLEAR_SKIES_CYCLE_TIME
+                    + (int) (Math.random() * (MAX_CLEAR_SKIES_CYCLE_TIME - MIN_CLEAR_SKIES_CYCLE_TIME + 1));
+            } else {
+                weatherCycleTime = MIN_WEATHER_CYCLE_TIME
+                    + (int) (Math.random() * (MAX_WEATHER_CYCLE_TIME - MIN_WEATHER_CYCLE_TIME + 1));
+            }
         }
     }
 
@@ -369,6 +401,22 @@ public class Simulation {
 
     public List<Panel> getAnimalPanels() {
         return animalPanels;
+    }
+
+    public Panel getLightningPanel() {
+        return lightningPanel;
+    }
+
+    public Panel getLightningBoltPanel() {
+        return lightningBoltPanel;
+    }
+
+    public boolean isLightningVisible() {
+        return lightningFlashTimer > 0;
+    }
+
+    public int getLightningStrikes() {
+        return lightning.getTotalStrikes();
     }
 
     public List<Panel> getTreePanels() {
