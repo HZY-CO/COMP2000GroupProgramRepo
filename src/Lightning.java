@@ -5,8 +5,8 @@ import java.util.List;
 public class Lightning extends Entity {
 
     private int duration;
-    private double strikeChance; // Determines whether a strike occurs(not every tick will have a strike)
-    private double igniteChance; // Determines whether a strike sets a tree on fire
+    private double strikeChance; //(not every tick will have a strike)
+    private double igniteChance; 
     private boolean hasStruck;
     private boolean active = true;
     private Forest forest;

@@ -5,7 +5,6 @@
  */
 
 public enum Biome {
-    //        density, grass, shrub, tree, rock
     GRASSLAND(0.8, 0.75, 0.20, 0.05, 0.02),
     WOODLAND (0.7, 0.10, 0.30, 0.60, 0.03),
     ROCKY    (0.4, 0.40, 0.50, 0.10, 0.40);
@@ -32,7 +31,7 @@ public enum Biome {
         return rockChance;
     }
 
-    // Randomly picks a species based on the chances for this biome
+    
     public Species pickSpecies() {
         double total = grassChance + shrubChance + treeChance;
         double roll = Math.random() * total;

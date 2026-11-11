@@ -32,7 +32,7 @@ public class Cell {
         this.biome = biome;
     }
 
-    // Rock cells can't have a tree, so fire can't spread onto them
+    
     public boolean isRock() {
         return isRock;
     }

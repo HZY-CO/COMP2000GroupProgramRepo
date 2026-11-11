@@ -101,7 +101,7 @@ public class Tree extends Entity implements Tickable, Flammable {
         return new Tree(newPosition, maxAge, TreeState.GROWING, panel, species);
     }
 
-    // Used when the new spot is in a different biome, so a different species can grow there
+    
     Tree createReplacement(Position newPosition, Species newSpecies) {
         return new Tree(newPosition, newSpecies.getMaxAge(), TreeState.GROWING, panel, newSpecies);
     }
@@ -154,7 +154,7 @@ public class Tree extends Entity implements Tickable, Flammable {
     public void draw() {
         switch (state) {
             case FULLY_GROWN:
-                panel.setBackground(species.getColour());   // Colour depends on species
+                panel.setBackground(species.getColour()); 
                 break;
             case GROWING:
                 float g = ((float) age / maxAge);
@@ -164,7 +164,7 @@ public class Tree extends Entity implements Tickable, Flammable {
                 if (g > 1) {
                     g = 1;
                 }
-                // Fades from black up to the species colour as it grows
+               
                 Color colour = species.getColour();
                 panel.setBackground(new Color(
                         (int) (colour.getRed() * g),
@@ -182,7 +182,7 @@ public class Tree extends Entity implements Tickable, Flammable {
                 panel.setBackground(new Color(r, 0, 0));
                 break;
             case BURNT:
-                panel.setBackground(new Color(0, 0, 0));    // Black
+                panel.setBackground(new Color(0, 0, 0));    
                 break;
         }
     }

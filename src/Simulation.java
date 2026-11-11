@@ -159,7 +159,7 @@ public class Simulation {
     }
 
     private void createTreeSpawns() {
-        // Split the grid into biome regions before placing anything
+        
         generateBiomes();
 
         for (int x = 0; x < gridWidth; x++) {
@@ -167,13 +167,13 @@ public class Simulation {
                 Cell cell = forest.getCellfromPosition(new Position(x, y));
                 Biome biome = cell.getBiome();
 
-                // Some cells are rock, these never get a tree so fire can't spread onto them
+                
                 if (Math.random() < biome.getRockChance()) {
                     cell.setRock(true);
 
                     Panel rockPanel = new Panel();
                     rockPanel.setSize(cellSize, cellSize);
-                    rockPanel.setBackground(new Color(120, 120, 120));   // Grey
+                    rockPanel.setBackground(new Color(120, 120, 120));   
                     rockPanel.setLocation(
                         gridBuffer / 2 + x * cellSize,
                         gridBuffer / 2 + y * cellSize
@@ -184,7 +184,7 @@ public class Simulation {
 
                 if (Math.random() < biome.getDensity()) {
                     Position position = new Position(x, y);
-                    // The biome decides which species grows here
+                   
                     Species species = biome.pickSpecies();
                     Panel panel = new Panel();
                     panel.setSize(cellSize, cellSize);

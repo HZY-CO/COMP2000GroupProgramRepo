@@ -7,7 +7,7 @@ import java.awt.Color;
 
 public enum Species {
     GRASS(10, new Color(170, 220, 60)),   // grows and burns fast
-    SHRUB(25, new Color(60, 160, 60)),    // in between
+    SHRUB(25, new Color(60, 160, 60)),    // acts ads a middle ground
     TREE(50, new Color(0, 110, 0));       // grows and burns slow
 
     private final int maxAge;
